@@ -8,13 +8,8 @@ import type { Template } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle, CreditCard, Loader2 } from 'lucide-react';
-
-declare global {
-  interface Window {
-    Razorpay: any;
-  }
-}
+import { CheckCircle, Loader2, ArrowRight } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 export default function BuyPage() {
   const router = useRouter();
@@ -23,13 +18,13 @@ export default function BuyPage() {
   const [template, setTemplate] = useState<Template | null>(null);
   const [loading, setLoading] = useState(false);
   const [isPurchased, setIsPurchased] = useState(false);
+  const upiId = "9027442522@axl";
 
   useEffect(() => {
     const templateId = params.templateId as string;
     const foundTemplate = templates.find((t) => t.id === templateId);
     if (foundTemplate && foundTemplate.type === 'paid') {
       setTemplate(foundTemplate);
-      // Check if already purchased
       const purchased = JSON.parse(localStorage.getItem('unlocked_templates') || '[]');
       if (purchased.includes(templateId)) {
         setIsPurchased(true);
@@ -39,64 +34,35 @@ export default function BuyPage() {
     }
   }, [params.templateId, router]);
 
-  const handlePayment = async () => {
+  const handlePurchaseConfirmation = () => {
     if (!template) return;
     setLoading(true);
 
-    const options = {
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_1234567890ABCD', // Use a test key
-      amount: template.price! * 100, // Amount in paise
-      currency: "INR",
-      name: "ResumeAI",
-      description: `Purchase of ${template.name} Template`,
-      image: "https://placehold.co/100x100.png",
-      handler: function (response: any) {
-        toast({
-          title: "Payment Successful!",
-          description: "You've unlocked the template.",
-        });
-
-        const purchased = JSON.parse(localStorage.getItem('unlocked_templates') || '[]');
-        if (!purchased.includes(template.id)) {
-            purchased.push(template.id);
-            localStorage.setItem('unlocked_templates', JSON.stringify(purchased));
-        }
-
-        router.push(`/editor/${template.id}`);
-      },
-      prefill: {
-        name: "Test User",
-        email: "test.user@example.com",
-        contact: "9999999999",
-      },
-      notes: {
-        address: "ResumeAI Corporate Office",
-      },
-      theme: {
-        color: "#29ABE2",
-      },
-    };
-
-    try {
-      const rzp = new window.Razorpay(options);
-      rzp.open();
-      rzp.on('payment.failed', function (response: any) {
-        toast({
-          variant: "destructive",
-          title: "Payment Failed",
-          description: response.error.description,
-        });
-        setLoading(false);
+    // Simulate a confirmation process
+    setTimeout(() => {
+      toast({
+        title: "Purchase Confirmed!",
+        description: "You've unlocked the template.",
       });
-    } catch (error) {
-        toast({
-            variant: "destructive",
-            title: "Error",
-            description: "Could not initialize payment gateway. Please try again.",
-        });
-        setLoading(false);
-    }
+
+      const purchased = JSON.parse(localStorage.getItem('unlocked_templates') || '[]');
+      if (!purchased.includes(template.id)) {
+          purchased.push(template.id);
+          localStorage.setItem('unlocked_templates', JSON.stringify(purchased));
+      }
+      setIsPurchased(true);
+      setLoading(false);
+      router.push(`/editor/${template.id}`);
+    }, 1000); 
   };
+  
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(upiId);
+    toast({
+      title: "Copied to clipboard!",
+      description: "UPI ID has been copied.",
+    });
+  }
 
   if (!template) {
     return (
@@ -142,14 +108,24 @@ export default function BuyPage() {
                 </Button>
                 </>
               ) : (
-                <Button onClick={handlePayment} disabled={loading} size="lg" className="w-full">
-                  {loading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <CreditCard className="mr-2 h-4 w-4" />
-                  )}
-                  Buy Now
-                </Button>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="upiId">Pay using UPI</Label>
+                    <div className="flex gap-2">
+                      <Input id="upiId" value={upiId} readOnly />
+                      <Button onClick={copyToClipboard} variant="outline">Copy</Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">Make a payment of ₹{template.price} to the UPI ID above. After payment, click the button below.</p>
+                  </div>
+                  <Button onClick={handlePurchaseConfirmation} disabled={loading} size="lg" className="w-full">
+                    {loading ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <ArrowRight className="mr-2 h-4 w-4" />
+                    )}
+                    I've Paid, Unlock Template
+                  </Button>
+                </div>
               )}
             </CardContent>
           </Card>

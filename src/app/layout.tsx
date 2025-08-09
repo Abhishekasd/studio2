@@ -20,7 +20,6 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet"></link>
-        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
       </head>
       <body className="font-body antialiased">
         <div className="flex flex-col min-h-screen">
