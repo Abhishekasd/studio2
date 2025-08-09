@@ -5,7 +5,7 @@ export const templates: Template[] = [
     id: 'classic-minimalist',
     name: 'Classic Minimalist',
     type: 'free',
-    sections: ['contact', 'summary', 'skills', 'experience', 'education'],
+    sections: ['contact', 'summary', 'skills', 'experience', 'education', 'certifications', 'projects', 'achievements', 'publications', 'portfolio', 'references'],
   },
   {
     id: 'modern-professional',
@@ -18,7 +18,7 @@ export const templates: Template[] = [
     id: 'creative-compact',
     name: 'Creative Compact',
     type: 'free',
-    sections: ['contact', 'summary', 'skills', 'experience', 'education', 'projects'],
+    sections: ['contact', 'summary', 'skills', 'experience', 'education', 'projects', 'achievements', 'publications'],
   },
   {
     id: 'developers-delight',
@@ -31,7 +31,7 @@ export const templates: Template[] = [
     id: 'elegant-simple',
     name: 'Elegant & Simple',
     type: 'free',
-    sections: ['contact', 'summary', 'skills', 'experience', 'education'],
+    sections: ['contact', 'summary', 'skills', 'experience', 'education', 'certifications', 'references'],
   },
   {
     id: 'executive-bold',
@@ -44,7 +44,7 @@ export const templates: Template[] = [
     id: 'clean-slate',
     name: 'Clean Slate',
     type: 'free',
-    sections: ['contact', 'summary', 'skills', 'experience', 'education', 'references'],
+    sections: ['contact', 'summary', 'skills', 'experience', 'education', 'references', 'portfolio', 'projects'],
   },
   {
     id: 'corporate-consultant',

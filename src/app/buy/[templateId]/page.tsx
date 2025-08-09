@@ -19,6 +19,7 @@ export default function BuyPage() {
   const [template, setTemplate] = useState<Template | null>(null);
   const [loading, setLoading] = useState(false);
   const [isPurchased, setIsPurchased] = useState(false);
+  const [transactionId, setTransactionId] = useState('');
   const upiId = "9027442522@axl";
 
   useEffect(() => {
@@ -36,10 +37,11 @@ export default function BuyPage() {
   }, [params.templateId, router]);
 
   const handlePurchaseConfirmation = () => {
-    if (!template) return;
+    if (!template || !transactionId) return;
     setLoading(true);
 
-    // Simulate a confirmation process
+    // In a real app, you would verify the transactionId with your payment gateway's API on the backend.
+    // For this prototype, we'll simulate a delay for verification.
     setTimeout(() => {
       toast({
         title: "Purchase Confirmed!",
@@ -79,7 +81,7 @@ export default function BuyPage() {
         <div>
           <Card className="overflow-hidden">
             <Image
-              src={template.image}
+              src={`https://placehold.co/500x707.png`}
               alt={template.name}
               width={500}
               height={707}
@@ -111,14 +113,24 @@ export default function BuyPage() {
               ) : (
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="upiId">Pay using UPI</Label>
+                    <Label htmlFor="upiId">1. Pay using UPI</Label>
                     <div className="flex gap-2">
                       <Input id="upiId" value={upiId} readOnly />
                       <Button onClick={copyToClipboard} variant="outline">Copy</Button>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">Make a payment of ₹{template.price} to the UPI ID above. After payment, click the button below.</p>
+                    <p className="text-xs text-muted-foreground mt-1">Make a payment of ₹{template.price} to the UPI ID above.</p>
                   </div>
-                  <Button onClick={handlePurchaseConfirmation} disabled={loading} size="lg" className="w-full">
+                   <div>
+                    <Label htmlFor="transactionId">2. Enter Transaction ID</Label>
+                    <Input 
+                      id="transactionId" 
+                      value={transactionId}
+                      onChange={(e) => setTransactionId(e.target.value)}
+                      placeholder="Enter the 12-digit UPI transaction ID" 
+                    />
+                     <p className="text-xs text-muted-foreground mt-1">After payment, enter the reference number here.</p>
+                  </div>
+                  <Button onClick={handlePurchaseConfirmation} disabled={loading || !transactionId} size="lg" className="w-full">
                     {loading ? (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
