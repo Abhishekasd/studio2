@@ -3,7 +3,7 @@ import type { Template } from '@/lib/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import ResumePreview from './resume-preview';
 
 interface TemplateCardProps {
@@ -14,33 +14,32 @@ const TemplateCard = ({ template }: TemplateCardProps) => {
   const href = template.type === 'free' ? `/editor/${template.id}` : `/buy/${template.id}`;
 
   return (
-    <Link href={href}>
-      <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+    <Link href={href} className="block group">
+      <Card className="overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 rounded-lg">
         <CardContent className="p-0">
-          <div className="relative bg-muted/30 aspect-[400/566] w-full overflow-hidden">
-            <div className="absolute inset-0 transform scale-[0.2] origin-top-left">
+          <div className="relative bg-muted w-full overflow-hidden aspect-[400/566]">
+            <div className="absolute inset-0 transform scale-[0.25] origin-top-left -translate-x-3 -translate-y-4">
               <ResumePreview template={template} />
             </div>
              {template.type === 'paid' ? (
               <Badge
-                className="absolute top-3 right-3 text-base"
-                variant="destructive"
+                className="absolute top-3 right-3 text-sm font-bold bg-amber-400 text-black shadow"
               >
-                ₹{template.price}
+                <Sparkles className="w-4 h-4 mr-1.5 fill-black" />
+                Premium
               </Badge>
             ) : (
                <Badge
-                className="absolute top-3 right-3"
+                className="absolute top-3 right-3 text-sm font-semibold"
               >
                 Free
               </Badge>
             )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
-          <div className="p-4 bg-card">
+          <div className="p-4 bg-card border-t">
             <h3 className="font-semibold text-lg truncate font-headline">{template.name}</h3>
-            <Button variant="link" className="p-0 h-auto mt-2 text-primary">
-              Use Template <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+            <p className="text-sm text-muted-foreground mt-1">Click to use this template</p>
           </div>
         </CardContent>
       </Card>
