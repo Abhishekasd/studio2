@@ -2,7 +2,7 @@ import { templates } from '@/lib/templates';
 import TemplateCard from '@/components/template-card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Sparkles, ArrowDown, Star, Zap, Gem, Users, Building } from 'lucide-react';
+import { Sparkles, ArrowDown, Star, Zap, Gem, Users } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -55,14 +55,6 @@ const reviews = [
         avatar: 'https://placehold.co/100x100.png',
         rating: 5
     }
-]
-
-const companies = [
-  { name: 'Tech Mahindra', logo: 'https://placehold.co/150x50.png', hint: 'tech logo' },
-  { name: 'Wipro', logo: 'https://placehold.co/150x50.png', hint: 'tech logo' },
-  { name: 'Infosys', logo: 'https://placehold.co/150x50.png', hint: 'tech logo' },
-  { name: 'HCL', logo: 'https://placehold.co/150x50.png', hint: 'tech logo' },
-  { name: 'Tata Consultancy Services', logo: 'https://placehold.co/150x50.png', hint: 'tech logo' },
 ]
 
 export default function Home() {
@@ -145,18 +137,6 @@ export default function Home() {
             <CarouselPrevious />
             <CarouselNext />
           </Carousel>
-      </section>
-      
-       <section id="trusted-by" className="mb-16">
-        <h2 className="text-3xl font-bold text-center mb-10 font-headline flex items-center justify-center gap-3">
-          <Building className="w-8 h-8" />
-          Trusted By Professionals From
-        </h2>
-        <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-4">
-          {companies.map(company => (
-            <Image key={company.name} src={company.logo} alt={company.name} width={120} height={40} className="opacity-60 hover:opacity-100 transition-opacity" data-ai-hint={company.hint} />
-          ))}
-        </div>
       </section>
 
       <section id="templates">
