@@ -49,7 +49,20 @@ export default function Home() {
         </div>
       </header>
 
-      <section id="benefits" className="mb-16">
+      <section id="templates" className="mb-16">
+        <h2 className="text-3xl font-bold text-center mb-10 font-headline flex items-center justify-center gap-3">
+          <Sparkles className="w-8 h-8 text-amber-400" />
+          Select a Template to Begin
+          <Sparkles className="w-8 h-8 text-amber-400" />
+          </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
+          {templates.map((template) => (
+            <TemplateCard key={template.id} template={template} />
+          ))}
+        </div>
+      </section>
+
+      <section id="benefits">
         <h2 className="text-3xl font-bold text-center mb-10 font-headline">Why Choose ResumeAI?</h2>
         <div className="grid md:grid-cols-3 gap-8 text-center">
             {benefits.map(benefit => (
@@ -61,19 +74,6 @@ export default function Home() {
                     <p className="text-muted-foreground">{benefit.description}</p>
                 </Card>
             ))}
-        </div>
-      </section>
-
-      <section id="templates">
-        <h2 className="text-3xl font-bold text-center mb-10 font-headline flex items-center justify-center gap-3">
-          <Sparkles className="w-8 h-8 text-amber-400" />
-          Select a Template to Begin
-          <Sparkles className="w-8 h-8 text-amber-400" />
-          </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
-          {templates.map((template) => (
-            <TemplateCard key={template.id} template={template} />
-          ))}
         </div>
       </section>
     </div>
