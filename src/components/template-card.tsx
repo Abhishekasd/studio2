@@ -1,9 +1,10 @@
-import Link from 'next/link';
+"use client";
+
+import { useRouter } from 'next/navigation';
 import type { Template } from '@/lib/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import ResumePreview from './resume-preview';
 
 interface TemplateCardProps {
@@ -11,10 +12,15 @@ interface TemplateCardProps {
 }
 
 const TemplateCard = ({ template }: TemplateCardProps) => {
+  const router = useRouter();
   const href = template.type === 'free' ? `/editor/${template.id}` : `/buy/${template.id}`;
 
+  const handleClick = () => {
+    router.push(href);
+  };
+
   return (
-    <Link href={href} className="block group">
+    <div onClick={handleClick} className="block group cursor-pointer">
       <Card className="overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 rounded-lg">
         <CardContent className="p-0">
           <div className="relative bg-muted w-full overflow-hidden aspect-[400/566]">
@@ -43,7 +49,7 @@ const TemplateCard = ({ template }: TemplateCardProps) => {
           </div>
         </CardContent>
       </Card>
-    </Link>
+    </div>
   );
 };
 
