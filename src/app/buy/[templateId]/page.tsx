@@ -7,6 +7,7 @@ import { templates } from '@/lib/templates';
 import type { Template } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, Loader2, ArrowRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';

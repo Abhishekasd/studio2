@@ -56,7 +56,7 @@ export default function PricingPage() {
             <CardTitle className="font-headline">Premium</CardTitle>
             <CardDescription>Unlock exclusive designs</CardDescription>
              <div className="text-4xl font-bold pt-4">
-               ₹49 <span className="text-lg font-normal text-muted-foreground">/ template</span>
+               From ₹99 <span className="text-lg font-normal text-muted-foreground">/ template</span>
             </div>
           </CardHeader>
           <CardContent className="flex-grow">

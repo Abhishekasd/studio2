@@ -28,7 +28,7 @@ export const templates: Template[] = [
     name: 'Developer\'s Delight',
     image: 'https://placehold.co/400x566.png?text=Developer\\\'s+Delight',
     type: 'paid',
-    price: 199,
+    price: 149,
     sections: ['contact', 'summary', 'skills', 'experience', 'education', 'certifications', 'projects', 'achievements', 'publications', 'portfolio'],
   },
   {
@@ -58,7 +58,7 @@ export const templates: Template[] = [
     name: 'Corporate Consultant',
     image: 'https://placehold.co/400x566.png?text=Corporate+Consultant',
     type: 'paid',
-    price: 199,
+    price: 149,
     sections: ['contact', 'summary', 'skills', 'experience', 'education', 'certifications', 'projects', 'achievements', 'publications', 'portfolio', 'references'],
   },
 ];

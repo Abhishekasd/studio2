@@ -26,12 +26,20 @@ const TemplateCard = ({ template }: TemplateCardProps) => {
               className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
               data-ai-hint="resume design"
             />
-            <Badge
-              className="absolute top-3 right-3"
-              variant={template.type === 'paid' ? 'destructive' : 'default'}
-            >
-              {template.type === 'paid' ? `₹${template.price}` : 'Free'}
-            </Badge>
+            {template.type === 'paid' ? (
+              <Badge
+                className="absolute top-3 right-3 text-base"
+                variant="destructive"
+              >
+                ₹{template.price}
+              </Badge>
+            ) : (
+               <Badge
+                className="absolute top-3 right-3"
+              >
+                Free
+              </Badge>
+            )}
           </div>
           <div className="p-4 bg-card">
             <h3 className="font-semibold text-lg truncate font-headline">{template.name}</h3>
