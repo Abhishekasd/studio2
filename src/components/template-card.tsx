@@ -26,7 +26,7 @@ const TemplateCard = ({ template }: TemplateCardProps) => {
                 className="absolute top-3 right-3 text-sm font-bold bg-amber-400 text-black shadow"
               >
                 <Sparkles className="w-4 h-4 mr-1.5 fill-black" />
-                Premium
+                ₹{template.price}
               </Badge>
             ) : (
                <Badge
