@@ -20,8 +20,30 @@ const TemplateCard = ({ template }: TemplateCardProps) => {
   };
 
   return (
-    <div onClick={handleClick} className="block group cursor-pointer">
-      <Card className="overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 rounded-lg">
+    <div onClick={handleClick} className="block group cursor-pointer" style={{ perspective: '1000px' }}>
+      <Card className="overflow-hidden transition-all duration-300 group-hover:shadow-2xl group-hover:-translate-y-2 rounded-lg" style={{ transformStyle: 'preserve-3d', transition: 'transform 0.4s' }}>
+        <div 
+          className="transition-transform duration-500 ease-out group-hover:[transform:rotateY(var(--rotate-y))_rotateX(var(--rotate-x))_scale(1.05)]"
+          onMouseMove={(e) => {
+            const card = e.currentTarget.parentElement?.parentElement;
+            if (card) {
+                const { left, top, width, height } = card.getBoundingClientRect();
+                const x = e.clientX - left;
+                const y = e.clientY - top;
+                const rotateX = -1 * ((y - height / 2) / (height / 2)) * 10;
+                const rotateY = ((x - width / 2) / (width / 2)) * 10;
+                card.style.setProperty('--rotate-x', `${rotateX}deg`);
+                card.style.setProperty('--rotate-y', `${rotateY}deg`);
+            }
+          }}
+          onMouseLeave={(e) => {
+            const card = e.currentTarget.parentElement?.parentElement;
+            if (card) {
+                card.style.setProperty('--rotate-x', '0deg');
+                card.style.setProperty('--rotate-y', '0deg');
+            }
+          }}
+        >
         <CardContent className="p-0">
           <div className="relative bg-muted w-full overflow-hidden aspect-[400/566]">
             <div className="absolute inset-0 transform scale-[0.5] origin-top-left -translate-x-1/2 left-1/2">
@@ -48,6 +70,7 @@ const TemplateCard = ({ template }: TemplateCardProps) => {
             <p className="text-sm text-muted-foreground mt-1">Click to use this template</p>
           </div>
         </CardContent>
+        </div>
       </Card>
     </div>
   );
