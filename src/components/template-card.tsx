@@ -1,10 +1,10 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import type { Template } from '@/lib/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
+import ResumePreview from './resume-preview';
 
 interface TemplateCardProps {
   template: Template;
@@ -17,16 +17,11 @@ const TemplateCard = ({ template }: TemplateCardProps) => {
     <Link href={href}>
       <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
         <CardContent className="p-0">
-          <div className="relative">
-            <Image
-              src={template.image}
-              alt={template.name}
-              width={400}
-              height={566}
-              className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
-              data-ai-hint="resume design"
-            />
-            {template.type === 'paid' ? (
+          <div className="relative bg-muted/30 aspect-[400/566] w-full overflow-hidden">
+            <div className="absolute inset-0 transform scale-[0.2] origin-top-left">
+              <ResumePreview template={template} />
+            </div>
+             {template.type === 'paid' ? (
               <Badge
                 className="absolute top-3 right-3 text-base"
                 variant="destructive"
