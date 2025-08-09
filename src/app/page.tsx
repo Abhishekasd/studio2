@@ -14,8 +14,14 @@ export default function Home() {
         <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
           Build a professional, ATS-friendly resume in minutes. Our AI-powered platform helps you highlight your skills and experience to land your dream job.
         </p>
-        <div className="mt-8">
+        <div className="mt-8 flex justify-center gap-4">
           <Button asChild size="lg" className="rounded-full font-bold">
+            <Link href="#templates">
+              <Sparkles className="mr-2" />
+              Get Started with AI
+            </Link>
+          </Button>
+          <Button asChild size="lg" className="rounded-full font-bold" variant="outline">
             <Link href="#templates">
               <ArrowDown className="mr-2 animate-bounce" />
               Choose Your Template
