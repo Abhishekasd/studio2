@@ -94,7 +94,7 @@ export default function EditorPage() {
     }
 
     if (foundTemplate.type === 'paid') {
-      const unlocked = JSON.parse(localStorage.getItem('unlocked_templates') || '[]');
+      const unlocked = JSON.parse(localStorage.getItem('purchased_templates_v2') || '[]');
       if (!unlocked.includes(templateId)) {
         router.push(`/buy/${templateId}`);
         return;

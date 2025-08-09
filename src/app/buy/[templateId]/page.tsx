@@ -27,7 +27,7 @@ export default function BuyPage() {
     const foundTemplate = templates.find((t) => t.id === templateId);
     if (foundTemplate && foundTemplate.type === 'paid') {
       setTemplate(foundTemplate);
-      const purchased = JSON.parse(localStorage.getItem('unlocked_templates') || '[]');
+      const purchased = JSON.parse(localStorage.getItem('purchased_templates_v2') || '[]');
       if (purchased.includes(templateId)) {
         setIsPurchased(true);
       }
@@ -48,10 +48,10 @@ export default function BuyPage() {
         description: "You've unlocked the template.",
       });
 
-      const purchased = JSON.parse(localStorage.getItem('unlocked_templates') || '[]');
+      const purchased = JSON.parse(localStorage.getItem('purchased_templates_v2') || '[]');
       if (!purchased.includes(template.id)) {
           purchased.push(template.id);
-          localStorage.setItem('unlocked_templates', JSON.stringify(purchased));
+          localStorage.setItem('purchased_templates_v2', JSON.stringify(purchased));
       }
       setIsPurchased(true);
       setLoading(false);
@@ -79,11 +79,13 @@ export default function BuyPage() {
     <div className="container mx-auto px-4 py-12">
       <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-start">
         <div>
-           <Card className="overflow-hidden aspect-[400/566]">
-                <div className="transform scale-[0.6] origin-top-left -translate-x-1/4">
+           <Card className="overflow-hidden">
+             <div className="relative bg-muted w-full overflow-hidden aspect-[400/566]">
+                <div className="absolute inset-0 transform scale-[0.5] origin-top-left -translate-x-1/2 left-1/2">
                     <ResumePreview template={template} />
                 </div>
-            </Card>
+            </div>
+           </Card>
         </div>
         <div className="space-y-6">
           <Card>
