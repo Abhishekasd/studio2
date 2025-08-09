@@ -252,6 +252,125 @@ export default function EditorPage() {
   
   const formData = form.watch();
 
+  const renderPreviewSection = (section: Section, data: FormData) => {
+    if (!template?.sections.includes(section)) return null;
+
+    switch (section) {
+        case 'summary':
+            return (
+                <div className="mb-6">
+                    <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2">Summary</h2>
+                    <p className="text-sm">{data.summary}</p>
+                </div>
+            );
+        case 'skills':
+            return (
+                <div className="mb-6">
+                    <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2">Skills</h2>
+                    <p className="text-sm">{data.skills.map(s => s.value).filter(v => v).join(' • ')}</p>
+                </div>
+            );
+        case 'experience':
+            return (
+                <div className="mb-6">
+                    <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2">Experience</h2>
+                    {data.experience.map((exp, i) => (exp.title || exp.company) && (
+                        <div key={i} className="mb-4 text-sm">
+                            <h3 className="font-bold">{exp.title}</h3>
+                            <div className="flex justify-between">
+                                <p className="italic">{exp.company}</p>
+                                <p className="italic">{exp.dates}</p>
+                            </div>
+                            <p className="mt-1">{exp.description}</p>
+                        </div>
+                    ))}
+                </div>
+            );
+        case 'education':
+            return (
+                <div className="mb-6">
+                    <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2">Education</h2>
+                    {data.education.map((edu, i) => (edu.degree || edu.institution) && (
+                         <div key={i} className="mb-2 text-sm">
+                            <div className="flex justify-between">
+                                <h3 className="font-bold">{edu.degree}</h3>
+                                <p className="italic">{edu.dates}</p>
+                            </div>
+                            <p>{edu.institution}</p>
+                        </div>
+                    ))}
+                </div>
+            );
+        case 'certifications':
+             return (
+                <div className="mb-6">
+                    <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2">Certifications</h2>
+                    {data.certifications.map((cert, i) => (cert.name) && (
+                         <div key={i} className="mb-2 text-sm">
+                            <h3 className="font-bold">{cert.name}</h3>
+                            <p>{cert.source}</p>
+                        </div>
+                    ))}
+                </div>
+            );
+        case 'projects':
+            return (
+                <div className="mb-6">
+                    <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2">Projects</h2>
+                    {data.projects.map((proj, i) => (proj.name) && (
+                         <div key={i} className="mb-4 text-sm">
+                            <div className="flex justify-between">
+                                <h3 className="font-bold">{proj.name}</h3>
+                                {proj.url && <a href={proj.url} className="italic text-blue-600 hover:underline" target="_blank" rel="noreferrer">Link</a>}
+                            </div>
+                            <p className="mt-1">{proj.description}</p>
+                        </div>
+                    ))}
+                </div>
+            );
+        case 'achievements':
+            return (
+                <div className="mb-6">
+                    <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2">Achievements</h2>
+                    <ul className="list-disc list-inside text-sm">
+                        {data.achievements.map((ach, i) => ach.value && <li key={i}>{ach.value}</li>)}
+                    </ul>
+                </div>
+            );
+        case 'publications':
+             return (
+                <div className="mb-6">
+                    <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2">Publications</h2>
+                    {data.publications.map((pub, i) => (pub.title) && (
+                        <div key={i} className="mb-2 text-sm">
+                           <div className="flex justify-between">
+                               <h3 className="font-bold">{pub.title}</h3>
+                               {pub.url && <a href={pub.url} className="italic text-blue-600 hover:underline" target="_blank" rel="noreferrer">Link</a>}
+                           </div>
+                       </div>
+                    ))}
+                </div>
+            );
+        case 'portfolio':
+             return data.portfolio && (
+                <div className="mb-6">
+                    <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2">Portfolio</h2>
+                    <a href={data.portfolio} className="text-sm text-blue-600 hover:underline" target="_blank" rel="noreferrer">{data.portfolio}</a>
+                </div>
+            );
+        case 'references':
+            return (
+                <div className="mb-6">
+                    <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2">References</h2>
+                    <p className="text-sm">{data.references}</p>
+                </div>
+            );
+        default:
+            return null;
+    }
+  }
+
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid lg:grid-cols-2 gap-8">
@@ -291,52 +410,12 @@ export default function EditorPage() {
                                 {formData.contact.linkedin && ` | ${formData.contact.linkedin}`}
                             </p>
                         </div>
-
-                        {template.sections.includes('summary') && (
-                            <div className="mb-6">
-                                <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2">Summary</h2>
-                                <p className="text-sm">{formData.summary}</p>
+                        
+                        {template.sections.map(section => (
+                            <div key={`preview-${section}`}>
+                                {renderPreviewSection(section, formData)}
                             </div>
-                        )}
-
-                        {template.sections.includes('skills') && (
-                            <div className="mb-6">
-                                <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2">Skills</h2>
-                                <p className="text-sm">{formData.skills.map(s => s.value).filter(v => v).join(' • ')}</p>
-                            </div>
-                        )}
-
-                        {template.sections.includes('experience') && (
-                             <div className="mb-6">
-                                <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2">Experience</h2>
-                                {formData.experience.map((exp, i) => (exp.title || exp.company) && (
-                                    <div key={i} className="mb-4 text-sm">
-                                        <h3 className="font-bold">{exp.title}</h3>
-                                        <div className="flex justify-between">
-                                            <p className="italic">{exp.company}</p>
-                                            <p className="italic">{exp.dates}</p>
-                                        </div>
-                                        <p className="mt-1">{exp.description}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
-                        {template.sections.includes('education') && (
-                            <div className="mb-6">
-                                <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2">Education</h2>
-                                {formData.education.map((edu, i) => (edu.degree || edu.institution) && (
-                                     <div key={i} className="mb-2 text-sm">
-                                        <div className="flex justify-between">
-                                            <h3 className="font-bold">{edu.degree}</h3>
-                                            <p className="italic">{edu.dates}</p>
-                                        </div>
-                                        <p>{edu.institution}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                        {/* Other sections can be previewed here */}
+                        ))}
                     </div>
                 </CardContent>
             </Card>
