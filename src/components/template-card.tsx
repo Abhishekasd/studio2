@@ -18,7 +18,7 @@ const TemplateCard = ({ template }: TemplateCardProps) => {
       <Card className="overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 rounded-lg">
         <CardContent className="p-0">
           <div className="relative bg-muted w-full overflow-hidden aspect-[400/566]">
-            <div className="absolute inset-0 transform scale-[0.25] origin-top-left -translate-x-3 -translate-y-4">
+            <div className="absolute inset-0 transform scale-[0.5] origin-top-left -translate-x-1/2 left-1/2">
               <ResumePreview template={template} />
             </div>
              {template.type === 'paid' ? (
