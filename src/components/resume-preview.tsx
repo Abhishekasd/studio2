@@ -14,14 +14,20 @@ const placeholderContent = {
         website: 'yourportfolio.com',
         linkedin: 'linkedin.com/in/yourprofile',
     },
-    summary: 'Highly motivated and detail-oriented professional seeking an entry-level position. Eager to apply academic knowledge and skills in a practical setting to contribute to company success and develop new skills.',
-    skills: ['Teamwork', 'Communication', 'Problem Solving', 'React', 'Node.js', 'Project Management', 'Agile Methodologies'],
+    summary: 'Highly motivated and detail-oriented professional with a passion for developing innovative software solutions. Seeking an entry-level position to apply academic knowledge and practical skills in a dynamic team environment. Eager to contribute to company success and grow as a software developer.',
+    skills: ['JavaScript', 'TypeScript', 'React', 'Node.js', 'Next.js', 'Python', 'SQL', 'Git', 'Docker', 'Teamwork', 'Communication', 'Problem Solving', 'Project Management', 'Agile Methodologies'],
     experience: [
         {
             title: 'Software Engineer Intern',
             company: 'Tech Solutions Inc.',
             dates: 'Jun 2023 - Aug 2023',
-            description: '• Developed and maintained web applications using React and Node.js, resulting in a 15% performance improvement.\n• Collaborated with a team of developers to design and implement new features for a client-facing project.'
+            description: '• Developed and maintained web applications using React and Node.js, resulting in a 15% performance improvement.\n• Collaborated with a team of 5 developers to design and implement new features for a client-facing project, improving user satisfaction by 10%.\n• Wrote unit tests and integration tests to ensure code quality and reliability.'
+        },
+        {
+            title: 'Freelance Web Developer',
+            company: 'Self-Employed',
+            dates: 'Jan 2022 - May 2023',
+            description: '• Built and deployed 5+ full-stack web applications for small businesses, using React, Next.js, and Firebase.\n• Managed client communication, project timelines, and deliverables from conception to completion.'
         },
         {
             title: 'Customer Service Associate',
@@ -35,20 +41,29 @@ const placeholderContent = {
             degree: 'Bachelor of Science in Computer Science',
             institution: 'University of Technology',
             dates: '2020 - 2024'
+        },
+        {
+            degree: 'High School Diploma',
+            institution: 'Central High School',
+            dates: '2016 - 2020'
         }
     ],
     projects: [
-      { name: 'Personal Portfolio Website', description: 'Designed and built a responsive portfolio website to showcase my projects.' },
+      { name: 'Personal Portfolio Website', description: 'Designed and built a responsive portfolio website using Next.js and Tailwind CSS to showcase my projects and skills.' },
+      { name: 'E-commerce Platform', description: 'A full-stack e-commerce site with user authentication, product catalog, and a shopping cart using the MERN stack.' },
     ],
     certifications: [
       { name: 'Certified JavaScript Developer', source: 'Code Academy' },
+      { name: 'Google Cloud Certified - Associate Cloud Engineer', source: 'Google Cloud' },
     ],
     achievements: [
         { value: 'Dean\'s List 2023 & 2024' },
         { value: 'Winner, University Hackathon 2023' },
+        { value: 'Published an article on modern web development on a popular tech blog.' },
     ],
     publications: [
       { title: 'The Future of AI in Web Development', url: 'https://example.com/publication' },
+      { title: 'A Guide to Serverless Functions', url: 'https://example.com/publication2' },
     ],
     portfolio: 'https://yourportfolio.com',
     references: 'Available upon request',
