@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { templates } from '@/lib/templates';
 import type { Template } from '@/lib/types';
 import { Button } from '@/components/ui/button';
@@ -11,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, Loader2, ArrowRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import ResumePreview from '@/components/resume-preview';
 
 export default function BuyPage() {
   const router = useRouter();
@@ -77,18 +77,13 @@ export default function BuyPage() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
+      <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-start">
         <div>
-          <Card className="overflow-hidden">
-            <Image
-              src={`https://placehold.co/500x707.png`}
-              alt={template.name}
-              width={500}
-              height={707}
-              className="w-full h-auto"
-              data-ai-hint="resume design"
-            />
-          </Card>
+           <Card className="overflow-hidden aspect-[400/566]">
+                <div className="transform scale-[0.6] origin-top-left -translate-x-1/4">
+                    <ResumePreview template={template} />
+                </div>
+            </Card>
         </div>
         <div className="space-y-6">
           <Card>
