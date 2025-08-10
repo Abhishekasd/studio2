@@ -24,7 +24,7 @@ const Header = () => {
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <FileText className="h-6 w-6 text-primary" />
-            <span className="font-bold text-lg font-headline">ResumAI</span>
+            <span className="font-bold text-lg font-headline">ResumeAI</span>
           </Link>
           <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
             {navLinks.slice(0, 5).map(({ href, label }) => (
