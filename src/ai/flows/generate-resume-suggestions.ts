@@ -32,7 +32,7 @@ const prompt = ai.definePrompt({
   name: 'generateResumeSuggestionsPrompt',
   input: {schema: GenerateResumeSuggestionsInputSchema},
   output: {schema: GenerateResumeSuggestionsOutputSchema},
-  model: 'openai/gpt-4o',
+  model: 'googleai/gemini-1.5-flash',
   prompt: `You are an AI resume expert. You will provide suggestions for skills, education, and experience based on the user's job title and industry.
 
 Job Title: {{{jobTitle}}}
