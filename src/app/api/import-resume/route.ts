@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import pdf from 'pdf-parse';
 import mammoth from 'mammoth';
 import { importResume } from '@/ai/flows/import-resume';
+import { recognize } from 'tesseract.js';
 
 export const config = {
   api: {
@@ -22,10 +23,12 @@ export async function POST(request: NextRequest) {
       'application/pdf',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'text/plain',
+      'image/jpeg',
+      'image/png',
     ];
 
     if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json({ error: `Unsupported file type: ${file.type}. Please upload a PDF, DOCX, or TXT file.` }, { status: 400 });
+      return NextResponse.json({ error: `Unsupported file type: ${file.type}. Please upload a PDF, DOCX, TXT, JPG, or PNG file.` }, { status: 400 });
     }
     
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -39,6 +42,9 @@ export async function POST(request: NextRequest) {
       extractedText = value;
     } else if (file.type === 'text/plain') {
       extractedText = buffer.toString('utf8');
+    } else if (file.type === 'image/jpeg' || file.type === 'image/png') {
+        const result = await recognize(buffer, 'eng');
+        extractedText = result.data.text;
     }
 
     if (!extractedText.trim()) {

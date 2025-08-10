@@ -571,7 +571,7 @@ export default function EditorPage() {
                       ref={fileInputRef}
                       onChange={handleResumeUpload}
                       className="hidden"
-                      accept=".pdf,.docx,.txt"
+                      accept=".pdf,.docx,.txt,.jpg,.jpeg,.png"
                     />
                     <Button onClick={handleTriggerUpload} disabled={isImporting} variant="outline">
                       {isImporting ? <Loader2 className="animate-spin" /> : <Upload />}
