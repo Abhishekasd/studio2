@@ -32,12 +32,13 @@ const prompt = ai.definePrompt({
   name: 'generateResumeSuggestionsPrompt',
   input: {schema: GenerateResumeSuggestionsInputSchema},
   output: {schema: GenerateResumeSuggestionsOutputSchema},
+  model: 'openai/gpt-4o',
   prompt: `You are an AI resume expert. You will provide suggestions for skills, education, and experience based on the user's job title and industry.
 
 Job Title: {{{jobTitle}}}
 Industry: {{{industry}}}
 
-Skills:`, // Note: The prompt should guide the model to generate skills, education, and experience details.
+Provide suggestions for skills, education, and experience.`,
 });
 
 const generateResumeSuggestionsFlow = ai.defineFlow(
