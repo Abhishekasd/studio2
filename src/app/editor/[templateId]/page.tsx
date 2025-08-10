@@ -249,7 +249,93 @@ export default function EditorPage() {
                 </CardContent>
             </Card>
         );
-      // Other cases will be added in future steps
+      case 'certifications':
+        return (
+          <Card>
+            <CardHeader><CardTitle>Certifications</CardTitle></CardHeader>
+            <CardContent>
+              {certifications.map((field, index) => (
+                <div key={field.id} className="space-y-4 border p-4 rounded-md mb-4 relative">
+                  <FormField name={`certifications.${index}.name`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Certificate Name</FormLabel><FormControl><Input placeholder="e.g., Certified JavaScript Developer" {...field} /></FormControl></FormItem>)} />
+                  <FormField name={`certifications.${index}.source`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Source</FormLabel><FormControl><Input placeholder="e.g., Coursera" {...field} /></FormControl></FormItem>)} />
+                  <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeCertification(index)}><Trash2 className="text-destructive" /></Button>
+                </div>
+              ))}
+              <Button type="button" variant="outline" size="sm" onClick={() => appendCertification({ name: '', source: '' })}><PlusCircle />Add Certification</Button>
+            </CardContent>
+          </Card>
+        );
+      case 'projects':
+        return (
+          <Card>
+            <CardHeader><CardTitle>Projects</CardTitle></CardHeader>
+            <CardContent>
+              <Accordion type="multiple" className="w-full">
+                {projects.map((field, index) => (
+                  <AccordionItem key={field.id} value={`project-${index}`}>
+                    <AccordionTrigger>{form.watch(`projects.${index}.name`) || `Project #${index + 1}`}</AccordionTrigger>
+                    <AccordionContent className="space-y-4 px-2">
+                      <FormField name={`projects.${index}.name`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Project Name</FormLabel><FormControl><Input placeholder="My Awesome App" {...field} /></FormControl></FormItem>)} />
+                      <FormField name={`projects.${index}.description`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Description</FormLabel><FormControl><Textarea placeholder="A short description of your project..." {...field} /></FormControl></FormItem>)} />
+                      <FormField name={`projects.${index}.url`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Project URL</FormLabel><FormControl><Input placeholder="https://github.com/user/project" {...field} /></FormControl></FormItem>)} />
+                      <Button type="button" variant="destructive" size="sm" onClick={() => removeProject(index)}><Trash2 />Remove Project</Button>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+              <Button type="button" variant="outline" size="sm" onClick={() => appendProject({ name: '', description: '', url: '' })} className="mt-4"><PlusCircle />Add Project</Button>
+            </CardContent>
+          </Card>
+        );
+      case 'achievements':
+        return (
+          <Card>
+            <CardHeader><CardTitle>Achievements</CardTitle></CardHeader>
+            <CardContent className="space-y-2">
+              {achievements.map((field, index) => (
+                <div key={field.id} className="flex items-center gap-2">
+                  <FormField name={`achievements.${index}.value`} control={form.control} render={({ field }) => (<FormItem className="flex-grow"><FormControl><Input placeholder="e.g., Dean's List 2023" {...field} /></FormControl></FormItem>)} />
+                  <Button type="button" variant="ghost" size="icon" onClick={() => removeAchievement(index)}><Trash2 className="text-destructive" /></Button>
+                </div>
+              ))}
+              <Button type="button" variant="outline" size="sm" onClick={() => appendAchievement({ value: '' })}><PlusCircle />Add Achievement</Button>
+            </CardContent>
+          </Card>
+        );
+      case 'publications':
+        return (
+          <Card>
+            <CardHeader><CardTitle>Publications</CardTitle></CardHeader>
+            <CardContent>
+              {publications.map((field, index) => (
+                <div key={field.id} className="space-y-4 border p-4 rounded-md mb-4 relative">
+                  <FormField name={`publications.${index}.title`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Title</FormLabel><FormControl><Input placeholder="e.g., The Future of AI" {...field} /></FormControl></FormItem>)} />
+                  <FormField name={`publications.${index}.url`} control={form.control} render={({ field }) => (<FormItem><FormLabel>URL</FormLabel><FormControl><Input placeholder="https://example.com/publication" {...field} /></FormControl></FormItem>)} />
+                  <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removePublication(index)}><Trash2 className="text-destructive" /></Button>
+                </div>
+              ))}
+              <Button type="button" variant="outline" size="sm" onClick={() => appendPublication({ title: '', url: '' })}><PlusCircle />Add Publication</Button>
+            </CardContent>
+          </Card>
+        );
+      case 'portfolio':
+        return (
+          <Card>
+            <CardHeader><CardTitle>Portfolio</CardTitle></CardHeader>
+            <CardContent>
+              <FormField name="portfolio" control={form.control} render={({ field }) => (<FormItem><FormLabel>Portfolio URL</FormLabel><FormControl><Input placeholder="https://your-portfolio.com" {...field} /></FormControl><FormMessage /></FormItem>)} />
+            </CardContent>
+          </Card>
+        );
+      case 'references':
+        return (
+          <Card>
+            <CardHeader><CardTitle>References</CardTitle></CardHeader>
+            <CardContent>
+              <FormField name="references" control={form.control} render={({ field }) => (<FormItem><FormControl><Textarea placeholder="e.g., Available upon request." {...field} /></FormControl><FormMessage /></FormItem>)} />
+            </CardContent>
+          </Card>
+        );
       default:
         return null;
     }
