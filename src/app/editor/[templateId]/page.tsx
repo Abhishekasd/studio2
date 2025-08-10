@@ -51,6 +51,14 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+const PreviewSection = ({ title, children, className }: { title: string; children: React.ReactNode, className?: string }) => (
+    <div className={`mb-4 ${className}`}>
+        <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2 tracking-wide uppercase">{title}</h2>
+        {children}
+    </div>
+);
+
+
 export default function EditorPage() {
   const router = useRouter();
   const params = useParams();
@@ -141,7 +149,7 @@ export default function EditorPage() {
     if (!resumePreviewRef.current) return;
     setIsDownloading(format);
     
-    const canvas = await html2canvas(resumePreviewRef.current, { scale: 2 });
+    const canvas = await html2canvas(resumePreviewRef.current, { scale: 3 });
 
     if(format === 'png') {
       const imgData = canvas.toDataURL('image/png');
@@ -352,66 +360,59 @@ export default function EditorPage() {
 
     switch (section) {
         case 'summary':
-            return (
-                <div className="mb-6">
-                    <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2">Summary</h2>
+            return data.summary && (
+                <PreviewSection title="Summary">
                     <p className="text-sm">{data.summary}</p>
-                </div>
+                </PreviewSection>
             );
         case 'skills':
-            return (
-                <div className="mb-6">
-                    <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2">Skills</h2>
-                    <p className="text-sm">{data.skills.map(s => s.value).filter(v => v).join(' • ')}</p>
-                </div>
+            const skills = data.skills.map(s => s.value).filter(v => v);
+            return skills.length > 0 && (
+                <PreviewSection title="Skills">
+                    <p className="text-sm">{skills.join(' • ')}</p>
+                </PreviewSection>
             );
         case 'experience':
-            return (
-                <div className="mb-6">
-                    <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2">Experience</h2>
+            return data.experience.some(e => e.title || e.company) && (
+                <PreviewSection title="Experience">
                     {data.experience.map((exp, i) => (exp.title || exp.company) && (
-                        <div key={i} className="mb-4 text-sm">
-                            <h3 className="font-bold">{exp.title}</h3>
-                            <div className="flex justify-between">
-                                <p className="italic">{exp.company}</p>
-                                <p className="italic">{exp.dates}</p>
-                            </div>
-                            <p className="mt-1">{exp.description}</p>
+                        <div key={i} className="mb-4 text-sm grid grid-cols-[1fr,auto] gap-x-4">
+                            <div className="font-bold">{exp.title}</div>
+                            <div className="font-medium text-right">{exp.dates}</div>
+                            <div className="italic col-span-2">{exp.company}</div>
+                            {exp.description && <ul className="mt-1 list-disc list-inside col-span-2">
+                                {exp.description.split('\n').map((line, j) => line && <li key={j}>{line.replace(/•|-/g, '').trim()}</li>)}
+                            </ul>}
                         </div>
                     ))}
-                </div>
+                </PreviewSection>
             );
         case 'education':
-            return (
-                <div className="mb-6">
-                    <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2">Education</h2>
+            return data.education.some(e => e.degree || e.institution) && (
+                <PreviewSection title="Education">
                     {data.education.map((edu, i) => (edu.degree || edu.institution) && (
-                         <div key={i} className="mb-2 text-sm">
-                            <div className="flex justify-between">
-                                <h3 className="font-bold">{edu.degree}</h3>
-                                <p className="italic">{edu.dates}</p>
-                            </div>
-                            <p>{edu.institution}</p>
+                         <div key={i} className="mb-2 text-sm grid grid-cols-[1fr,auto] gap-x-4">
+                            <div className="font-bold">{edu.degree}</div>
+                            <div className="font-medium text-right">{edu.dates}</div>
+                            <div className="italic col-span-2">{edu.institution}</div>
                         </div>
                     ))}
-                </div>
+                </PreviewSection>
             );
         case 'certifications':
-             return (
-                <div className="mb-6">
-                    <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2">Certifications</h2>
+             return data.certifications.some(c => c.name) && (
+                <PreviewSection title="Certifications">
                     {data.certifications.map((cert, i) => (cert.name) && (
                          <div key={i} className="mb-2 text-sm">
-                            <h3 className="font-bold">{cert.name}</h3>
-                            <p>{cert.source}</p>
+                            <span className="font-bold">{cert.name}</span>
+                            {cert.source && <span className="italic"> - {cert.source}</span>}
                         </div>
                     ))}
-                </div>
+                </PreviewSection>
             );
         case 'projects':
-            return (
-                <div className="mb-6">
-                    <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2">Projects</h2>
+            return data.projects.some(p => p.name) && (
+                <PreviewSection title="Projects">
                     {data.projects.map((proj, i) => (proj.name) && (
                          <div key={i} className="mb-4 text-sm">
                             <div className="flex justify-between">
@@ -421,44 +422,39 @@ export default function EditorPage() {
                             <p className="mt-1">{proj.description}</p>
                         </div>
                     ))}
-                </div>
+                </PreviewSection>
             );
         case 'achievements':
-            return (
-                <div className="mb-6">
-                    <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2">Achievements</h2>
+            const achievements = data.achievements.map(a => a.value).filter(v => v);
+            return achievements.length > 0 && (
+                <PreviewSection title="Achievements">
                     <ul className="list-disc list-inside text-sm">
-                        {data.achievements.map((ach, i) => ach.value && <li key={i}>{ach.value}</li>)}
+                        {achievements.map((ach, i) => <li key={i}>{ach}</li>)}
                     </ul>
-                </div>
+                </PreviewSection>
             );
         case 'publications':
-             return (
-                <div className="mb-6">
-                    <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2">Publications</h2>
+             return data.publications.some(p => p.title) && (
+                <PreviewSection title="Publications">
                     {data.publications.map((pub, i) => (pub.title) && (
-                        <div key={i} className="mb-2 text-sm">
-                           <div className="flex justify-between">
-                               <h3 className="font-bold">{pub.title}</h3>
-                               {pub.url && <a href={pub.url} className="italic text-blue-600 hover:underline" target="_blank" rel="noreferrer">Link</a>}
-                           </div>
+                        <div key={i} className="mb-2 text-sm flex justify-between">
+                           <span className="font-bold">{pub.title}</span>
+                           {pub.url && <a href={pub.url} className="italic text-blue-600 hover:underline" target="_blank" rel="noreferrer">Link</a>}
                        </div>
                     ))}
-                </div>
+                </PreviewSection>
             );
         case 'portfolio':
              return data.portfolio && (
-                <div className="mb-6">
-                    <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2">Portfolio</h2>
+                <PreviewSection title="Portfolio">
                     <a href={data.portfolio} className="text-sm text-blue-600 hover:underline" target="_blank" rel="noreferrer">{data.portfolio}</a>
-                </div>
+                </PreviewSection>
             );
         case 'references':
-            return (
-                <div className="mb-6">
-                    <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2">References</h2>
+            return data.references && (
+                <PreviewSection title="References">
                     <p className="text-sm">{data.references}</p>
-                </div>
+                </PreviewSection>
             );
         default:
             return null;
@@ -495,15 +491,15 @@ export default function EditorPage() {
             <Card>
                 <CardHeader><CardTitle>Live Preview</CardTitle></CardHeader>
                 <CardContent>
-                    <div ref={resumePreviewRef} className="bg-white text-black p-8 rounded-md shadow-lg aspect-[8.5/11] overflow-y-auto">
-                        {/* A simple resume template structure */}
-                        <div className="text-center mb-8">
-                            <h1 className="text-4xl font-bold">{formData.contact.name || 'Your Name'}</h1>
-                            <p className="text-sm">
-                                {formData.contact.email} {formData.contact.phone && `| ${formData.contact.phone}`}
-                                {formData.contact.website && ` | ${formData.contact.website}`}
-                                {formData.contact.linkedin && ` | ${formData.contact.linkedin}`}
-                            </p>
+                    <div ref={resumePreviewRef} className="bg-white text-black p-8 rounded-md shadow-lg aspect-[8.5/11] overflow-y-auto font-sans">
+                        <div className="text-center mb-6">
+                            <h1 className="text-4xl font-extrabold tracking-tight">{formData.contact.name || 'Your Name'}</h1>
+                            <div className="flex justify-center items-center flex-wrap gap-x-4 text-sm mt-2">
+                                {formData.contact.email && <span>{formData.contact.email}</span>}
+                                {formData.contact.phone && <span>{formData.contact.phone}</span>}
+                                {formData.contact.website && <a href={formData.contact.website} className="text-blue-600 hover:underline">{formData.contact.website}</a>}
+                                {formData.contact.linkedin && <a href={formData.contact.linkedin} className="text-blue-600 hover:underline">{formData.contact.linkedin}</a>}
+                            </div>
                         </div>
                         
                         {template.sections.map(section => (
