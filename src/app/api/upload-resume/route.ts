@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import formidable from 'formidable';
 import pdf from 'pdf-parse';
+import { tmpdir } from 'os';
+import path from 'path';
 
 export const config = {
   api: {
@@ -10,38 +12,48 @@ export const config = {
 };
 
 async function parseFormData(req: NextRequest): Promise<{ fields: formidable.Fields; files: formidable.Files }> {
-    const readable = req.body || new ReadableStream();
-    const contentType = req.headers.get('content-type') || '';
-    
-    return new Promise((resolve, reject) => {
-        const form = formidable({ 
-            maxFiles: 1,
-            maxFileSize: 1024 * 1024 * 5, // 5MB
-        });
-        
-        const chunks: Uint8Array[] = [];
-        const reader = readable.getReader();
+  const formData = await req.formData();
+  const form = formidable({
+      maxFiles: 1,
+      maxFileSize: 1024 * 1024 * 5, // 5MB
+      uploadDir: tmpdir(),
+  });
 
-        function pump(): Promise<void> {
-            return reader.read().then(({ done, value }) => {
-                if (done) {
-                    const buffer = Buffer.concat(chunks);
-                    (form as any).req = { headers: { 'content-type': contentType } };
-                    form.parse(buffer, (err, fields, files) => {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve({ fields, files });
-                        }
-                    });
-                    return;
-                }
-                chunks.push(value);
-                return pump();
-            });
-        }
-        pump().catch(reject);
-    });
+  const formidableFiles: formidable.Files = {};
+
+  for (const [key, value] of formData.entries()) {
+      if (value instanceof File) {
+          const tempFilePath = path.join(tmpdir(), value.name);
+          await fs.writeFile(tempFilePath, Buffer.from(await value.arrayBuffer()));
+          const file = new formidable.File({
+            filepath: tempFilePath,
+            originalFilename: value.name,
+            mimetype: value.type,
+            size: value.size,
+          });
+          file.filepath = tempFilePath; // formidable.File is not a class, so we have to do this
+          if (!formidableFiles[key]) {
+            formidableFiles[key] = [];
+          }
+          (formidableFiles[key] as formidable.File[]).push(file);
+      }
+  }
+
+  // formidable's parse returns fields as arrays. We can just return empty for this use case.
+  const fields = {};
+  
+  // formidable expects files to be in arrays. Let's handle single file case
+  const finalFiles: formidable.Files = {};
+  for(const key in formidableFiles) {
+      const fileList = formidableFiles[key];
+      if(Array.isArray(fileList) && fileList.length === 1) {
+          finalFiles[key] = fileList[0];
+      } else {
+          finalFiles[key] = fileList;
+      }
+  }
+
+  return { fields, files: finalFiles };
 }
 
 
