@@ -108,21 +108,30 @@ export default function EditorPage() {
     setIsAiLoading(true);
     try {
       const values = form.getValues();
+      const hasExperience = values.experience.some(e => e.title || e.company);
+
+      if (!values.contact.name || !hasExperience) {
+        toast({ 
+          variant: 'destructive', 
+          title: 'Missing Information', 
+          description: 'Please fill in your name and at least one experience entry to generate a summary.' 
+        });
+        return;
+      }
+
       const input = {
         name: values.contact.name,
         skills: values.skills.map(s => s.value).join(', '),
         education: values.education.map(e => `${e.degree} at ${e.institution}`).join('; '),
         experience: values.experience.map(e => `${e.title} at ${e.company}: ${e.description}`).join('; '),
       };
-      if (!input.name || !input.experience) {
-        toast({ variant: 'destructive', title: 'Error', description: 'Please fill in your name and at least one experience entry to generate a summary.' });
-        return;
-      }
+
       const result = await summarizeResume(input);
       form.setValue('summary', result.summary);
       toast({ title: 'Success', description: 'AI-powered summary has been generated!' });
     } catch (error) {
-      toast({ variant: 'destructive', title: 'Error', description: 'Failed to generate summary.' });
+      console.error(error);
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to generate summary. Please check your API key and try again.' });
     } finally {
       setIsAiLoading(false);
     }
