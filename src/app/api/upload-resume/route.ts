@@ -1,41 +1,50 @@
 'use server';
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
 import pdf from 'pdf-parse';
-import { tmpdir } from 'os';
-import path from 'path';
+import formidable from 'formidable';
+import { promises as fs } from 'fs';
 
-// Note: formidable is not used as it has issues in this environment.
-// We are manually handling the file upload.
+// Disable the default body parser to handle file uploads with formidable
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
+const parseForm = (req: NextRequest): Promise<{ fields: formidable.Fields; files: formidable.Files }> => {
+    return new Promise((resolve, reject) => {
+        const form = formidable({});
+        // The 'req' object in Next.js 13+ app router is not directly compatible with what formidable expects.
+        // We need to cast it to any to make it work.
+        form.parse(req as any, (err, fields, files) => {
+            if (err) {
+                reject(err);
+            }
+            resolve({ fields, files });
+        });
+    });
+};
 
 export async function POST(req: NextRequest) {
   try {
-    const formData = await req.formData();
-    const file = formData.get('file') as File | null;
+    const { files } = await parseForm(req);
+    const file = Array.isArray(files.file) ? files.file[0] : files.file;
 
     if (!file) {
       return NextResponse.json({ error: 'No file uploaded.' }, { status: 400 });
     }
-    
-    const tempFilePath = path.join(tmpdir(), file.name);
-    await fs.writeFile(tempFilePath, Buffer.from(await file.arrayBuffer()));
-    
-    let textContent = '';
-    const fileBuffer = await fs.readFile(tempFilePath);
 
-    if (file.type === 'application/pdf') {
+    const fileBuffer = await fs.readFile(file.filepath);
+    let textContent = '';
+
+    if (file.mimetype === 'application/pdf') {
       const data = await pdf(fileBuffer);
       textContent = data.text;
-    } else if (file.type === 'text/plain') {
+    } else if (file.mimetype === 'text/plain') {
       textContent = fileBuffer.toString('utf8');
     } else {
-       // Clean up the uploaded file
-      await fs.unlink(tempFilePath);
       return NextResponse.json({ error: 'Unsupported file type. Please upload a PDF or TXT file.' }, { status: 400 });
     }
-    
-    // Clean up the uploaded file
-    await fs.unlink(tempFilePath);
 
     return NextResponse.json({ text: textContent });
 
