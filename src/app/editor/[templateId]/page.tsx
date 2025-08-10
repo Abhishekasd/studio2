@@ -13,12 +13,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Trash2, PlusCircle, BrainCircuit, Download, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { Trash2, PlusCircle, BrainCircuit, Download, Image as ImageIcon, Loader2, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { summarizeResume } from '@/ai/flows/summarize-resume';
 import { generateResumeSuggestions } from '@/ai/flows/generate-resume-suggestions';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import type { ImportResumeOutput } from '@/ai/flows/import-resume';
 
 const formSchema = z.object({
   contact: z.object({
@@ -66,7 +67,9 @@ export default function EditorPage() {
   const [template, setTemplate] = useState<Template | null>(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [isDownloading, setIsDownloading] = useState<'pdf' | 'png' | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
   const resumePreviewRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -149,7 +152,7 @@ export default function EditorPage() {
     if (!resumePreviewRef.current) return;
     setIsDownloading(format);
     
-    const canvas = await html2canvas(resumePreviewRef.current, { scale: 2 });
+    const canvas = await html2canvas(resumePreviewRef.current, { scale: 3 });
 
     if(format === 'png') {
       const imgData = canvas.toDataURL('image/png');
@@ -168,6 +171,100 @@ export default function EditorPage() {
     }
 
     setIsDownloading(null);
+  };
+  
+  const handleTriggerUpload = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleResumeUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsImporting(true);
+    try {
+      const formData = new FormData();
+      formData.append('resume', file);
+
+      const uploadResponse = await fetch('/api/import-resume', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!uploadResponse.ok) {
+        const errorData = await uploadResponse.json();
+        throw new Error(errorData.error || 'Failed to import resume.');
+      }
+
+      const result: ImportResumeOutput = await uploadResponse.json();
+      
+      const { jsonData } = result;
+      
+      // Reset form to default before populating
+      form.reset();
+
+      if(jsonData.name) form.setValue('contact.name', jsonData.name);
+      if(jsonData.email) form.setValue('contact.email', jsonData.email);
+      if(jsonData.phone) form.setValue('contact.phone', jsonData.phone);
+      if(jsonData.website) form.setValue('contact.website', jsonData.website);
+      if(jsonData.linkedin) form.setValue('contact.linkedin', jsonData.linkedin);
+      if(jsonData.summary) form.setValue('summary', jsonData.summary);
+      
+      if(jsonData.skills && jsonData.skills.length > 0) {
+        form.setValue('skills', jsonData.skills);
+      } else {
+        form.setValue('skills', [{ value: '' }]);
+      }
+      if(jsonData.experience && jsonData.experience.length > 0) {
+        form.setValue('experience', jsonData.experience);
+      } else {
+        form.setValue('experience', [{ title: '', company: '', dates: '', description: '' }]);
+      }
+      if(jsonData.education && jsonData.education.length > 0) {
+        form.setValue('education', jsonData.education);
+      } else {
+        form.setValue('education', [{ degree: '', institution: '', dates: '' }]);
+      }
+      if(jsonData.certifications && jsonData.certifications.length > 0) {
+        form.setValue('certifications', jsonData.certifications);
+      } else {
+        form.setValue('certifications', [{ name: '', source: '' }]);
+      }
+      if(jsonData.projects && jsonData.projects.length > 0) {
+        form.setValue('projects', jsonData.projects);
+      } else {
+        form.setValue('projects', [{ name: '', description: '', url: '' }]);
+      }
+      if(jsonData.achievements && jsonData.achievements.length > 0) {
+        form.setValue('achievements', jsonData.achievements);
+      } else {
+        form.setValue('achievements', [{ value: '' }]);
+      }
+      if(jsonData.publications && jsonData.publications.length > 0) {
+        form.setValue('publications', jsonData.publications);
+      } else {
+        form.setValue('publications', [{ title: '', url: '' }]);
+      }
+
+      toast({
+        title: "Resume Imported!",
+        description: "Your information has been filled in. Please review and save.",
+      });
+
+    } catch (error: any) {
+      console.error(error);
+      toast({
+        variant: 'destructive',
+        title: 'Import Failed',
+        description: error.message || 'An unknown error occurred.',
+      });
+    } finally {
+      setIsImporting(false);
+      // Reset file input
+      if(fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
   };
 
   const renderSection = (section: Section) => {
@@ -469,6 +566,17 @@ export default function EditorPage() {
             <header className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold font-headline">Editing: {template.name}</h1>
                  <div className="flex gap-2">
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleResumeUpload}
+                      className="hidden"
+                      accept=".pdf,.docx,.txt"
+                    />
+                    <Button onClick={handleTriggerUpload} disabled={isImporting} variant="outline">
+                      {isImporting ? <Loader2 className="animate-spin" /> : <Upload />}
+                      Import Resume
+                    </Button>
                     <Button onClick={() => handleDownload('png')} disabled={!!isDownloading}>
                         {isDownloading === 'png' ? <Loader2 className="animate-spin" /> : <ImageIcon />}
                         PNG
