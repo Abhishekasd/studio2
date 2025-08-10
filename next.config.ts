@@ -22,6 +22,12 @@ const nextConfig: NextConfig = {
       }
     ],
   },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+        config.externals.push('formidable');
+    }
+    return config;
+  }
 };
 
 export default nextConfig;
