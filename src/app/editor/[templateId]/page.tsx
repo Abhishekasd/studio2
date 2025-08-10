@@ -13,10 +13,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Trash2, PlusCircle, BrainCircuit, Download, Image as ImageIcon, Loader2, Upload } from 'lucide-react';
+import { Trash2, PlusCircle, BrainCircuit, Download, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { summarizeResume } from '@/ai/flows/summarize-resume';
-import { extractResumeData } from '@/ai/flows/extract-resume-data';
 import { generateResumeSuggestions } from '@/ai/flows/generate-resume-suggestions';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -67,9 +66,7 @@ export default function EditorPage() {
   const [template, setTemplate] = useState<Template | null>(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [isDownloading, setIsDownloading] = useState<'pdf' | 'png' | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
   const resumePreviewRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -152,7 +149,7 @@ export default function EditorPage() {
     if (!resumePreviewRef.current) return;
     setIsDownloading(format);
     
-    const canvas = await html2canvas(resumePreviewRef.current, { scale: 3 });
+    const canvas = await html2canvas(resumePreviewRef.current, { scale: 2 });
 
     if(format === 'png') {
       const imgData = canvas.toDataURL('image/png');
@@ -172,51 +169,6 @@ export default function EditorPage() {
 
     setIsDownloading(null);
   };
-
-  const handleResumeUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setIsUploading(true);
-    toast({ title: 'Uploading resume...', description: 'Please wait while we process your file.' });
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      // 1. Upload file to get text
-      const uploadResponse = await fetch('/api/upload-resume', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!uploadResponse.ok) {
-        throw new Error('Failed to upload file.');
-      }
-
-      const { text: resumeText } = await uploadResponse.json();
-
-      // 2. Send text to AI
-      toast({ title: 'Analyzing resume...', description: 'The AI is extracting your information.' });
-      const extractedData = await extractResumeData({ resumeText });
-      
-      // 3. Populate form
-      form.reset(extractedData);
-
-      toast({ title: 'Success!', description: 'Your resume has been imported.' });
-
-    } catch (error) {
-      console.error('Resume Import Error:', error);
-      toast({ variant: 'destructive', title: 'Import Failed', description: 'Could not process your resume file. Please try again.' });
-    } finally {
-      setIsUploading(false);
-      // Reset file input
-      if(fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
-  };
-
 
   const renderSection = (section: Section) => {
     switch (section) {
@@ -517,17 +469,6 @@ export default function EditorPage() {
             <header className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold font-headline">Editing: {template.name}</h1>
                  <div className="flex gap-2">
-                    <input 
-                      type="file" 
-                      ref={fileInputRef} 
-                      onChange={handleResumeUpload}
-                      className="hidden" 
-                      accept=".pdf,.txt"
-                    />
-                    <Button onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
-                        {isUploading ? <Loader2 className="animate-spin" /> : <Upload />}
-                        Import Resume
-                    </Button>
                     <Button onClick={() => handleDownload('png')} disabled={!!isDownloading}>
                         {isDownloading === 'png' ? <Loader2 className="animate-spin" /> : <ImageIcon />}
                         PNG
