@@ -563,9 +563,9 @@ export default function EditorPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="grid lg:grid-cols-2 gap-8">
         <div className="space-y-6">
-            <header className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold font-headline">Editing: {template.name}</h1>
-                 <div className="flex gap-2">
+            <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <h1 className="text-2xl md:text-3xl font-bold font-headline">Editing: {template.name}</h1>
+                 <div className="flex flex-wrap gap-2">
                     <input
                       type="file"
                       ref={fileInputRef}
@@ -598,8 +598,8 @@ export default function EditorPage() {
         <div className="sticky top-8 h-fit">
             <Card>
                 <CardHeader><CardTitle>Live Preview</CardTitle></CardHeader>
-                <CardContent>
-                    <div ref={resumePreviewRef} className="bg-white text-black p-8 rounded-md shadow-lg aspect-[8.5/11] overflow-y-auto font-sans">
+                <CardContent className="overflow-x-auto pb-4">
+                    <div ref={resumePreviewRef} className="bg-white text-black p-4 md:p-8 rounded-md shadow-lg aspect-[8.5/11] min-w-[700px] overflow-y-auto font-sans mx-auto">
                         <div className="text-center mb-6">
                             <h1 className="text-4xl font-extrabold tracking-tight">{formData.contact.name || 'Your Name'}</h1>
                             <div className="flex justify-center items-center flex-wrap gap-x-4 text-sm mt-2">

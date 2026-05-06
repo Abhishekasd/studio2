@@ -63,7 +63,7 @@ export default function Home() {
 
       <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-8 text-center max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 text-center max-w-4xl mx-auto">
                 <div className="flex items-center justify-center gap-2">
                     <BarChart className="w-6 h-6 text-primary" />
                     <span className="font-semibold text-gray-600">10,000+ resumes built</span>
@@ -72,7 +72,7 @@ export default function Home() {
                     <CheckCircle className="w-6 h-6 text-primary" />
                      <span className="font-semibold text-gray-600">95% user satisfaction</span>
                 </div>
-                <div className="flex items-center justify-center gap-2 col-span-2 md:col-span-1">
+                <div className="flex items-center justify-center gap-2 sm:col-span-2 md:col-span-1">
                     <Users className="w-6 h-6 text-primary" />
                      <span className="font-semibold text-gray-600">Trusted in 20+ countries</span>
                 </div>
