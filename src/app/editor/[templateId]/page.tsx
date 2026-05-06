@@ -13,13 +13,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Trash2, PlusCircle, BrainCircuit, Download, Image as ImageIcon, Loader2, Upload } from 'lucide-react';
+import { Trash2, PlusCircle, BrainCircuit, Download, Image as ImageIcon, Loader2, Upload, Cloud, CloudUpload, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { summarizeResume } from '@/ai/flows/summarize-resume';
 import { generateResumeSuggestions } from '@/ai/flows/generate-resume-suggestions';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import type { ImportResumeOutput } from '@/ai/flows/import-resume';
+import { useAuth } from '@/components/auth/auth-provider';
+import { saveResume } from '@/lib/firestore';
 
 const formSchema = z.object({
   contact: z.object({
@@ -68,8 +70,11 @@ export default function EditorPage() {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [isDownloading, setIsDownloading] = useState<'pdf' | 'png' | null>(null);
   const [isImporting, setIsImporting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [savedSuccess, setSavedSuccess] = useState(false);
   const resumePreviewRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { user } = useAuth();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -175,6 +180,27 @@ export default function EditorPage() {
   
   const handleTriggerUpload = () => {
     fileInputRef.current?.click();
+  };
+
+  const handleSaveToCloud = async () => {
+    if (!user) {
+      toast({ title: 'Sign In Required', description: 'Please sign in to save your resume to the cloud.', variant: 'destructive' });
+      return;
+    }
+    if (!template) return;
+    setIsSaving(true);
+    try {
+      const formData = form.getValues();
+      await saveResume(user.uid, template.id, template.name, formData);
+      setSavedSuccess(true);
+      toast({ title: '✅ Saved!', description: 'Your resume has been saved to the cloud.' });
+      setTimeout(() => setSavedSuccess(false), 3000);
+    } catch (error) {
+      console.error(error);
+      toast({ title: 'Save Failed', description: 'Could not save resume. Please try again.', variant: 'destructive' });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleResumeUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -576,6 +602,10 @@ export default function EditorPage() {
                     <Button onClick={handleTriggerUpload} disabled={isImporting} variant="outline">
                       {isImporting ? <Loader2 className="animate-spin" /> : <Upload />}
                       Import Resume
+                    </Button>
+                    <Button onClick={handleSaveToCloud} disabled={isSaving} variant={savedSuccess ? 'default' : 'outline'} className={savedSuccess ? 'bg-green-600 hover:bg-green-700 text-white border-0' : ''}>
+                      {isSaving ? <Loader2 className="animate-spin" /> : savedSuccess ? <Check className="h-4 w-4" /> : <CloudUpload className="h-4 w-4" />}
+                      {savedSuccess ? 'Saved!' : 'Save to Cloud'}
                     </Button>
                     <Button onClick={() => handleDownload('png')} disabled={!!isDownloading}>
                         {isDownloading === 'png' ? <Loader2 className="animate-spin" /> : <ImageIcon />}

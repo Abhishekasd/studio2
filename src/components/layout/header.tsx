@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { FileText, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { AuthButton } from '@/components/auth/auth-button';
 import {
   Sheet,
   SheetContent,
@@ -28,15 +29,16 @@ const Header = () => {
             <FileText className="h-6 w-6 text-primary" />
             <span className="font-bold text-lg font-headline">Resume Master AI</span>
           </Link>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-              {navLinks.slice(0, 5).map(({ href, label }) => (
+              {navLinks.slice(0, 4).map(({ href, label }) => (
                 <Link key={label} href={href} className="transition-colors hover:text-primary">
                   {label}
                 </Link>
               ))}
             </nav>
             <ThemeToggle />
+            <AuthButton />
             <div className="md:hidden">
               <Sheet>
                 <SheetTrigger asChild>
