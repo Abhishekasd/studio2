@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { FileText, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/theme-toggle';
 import {
   Sheet,
   SheetContent,
@@ -26,31 +27,34 @@ const Header = () => {
             <FileText className="h-6 w-6 text-primary" />
             <span className="font-bold text-lg font-headline">Resume Master AI</span>
           </Link>
-          <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-            {navLinks.slice(0, 5).map(({ href, label }) => (
-              <Link key={label} href={href} className="transition-colors hover:text-primary">
-                {label}
-              </Link>
-            ))}
-          </nav>
-          <div className="md:hidden">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Menu className="h-6 w-6" />
-                  <span className="sr-only">Open menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right">
-                <nav className="grid gap-6 text-lg font-medium mt-6">
-                  {navLinks.map(({ href, label }) => (
-                    <Link key={label} href={href} className="transition-colors hover:text-primary">
-                      {label}
-                    </Link>
-                  ))}
-                </nav>
-              </SheetContent>
-            </Sheet>
+          <div className="flex items-center gap-4">
+            <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
+              {navLinks.slice(0, 5).map(({ href, label }) => (
+                <Link key={label} href={href} className="transition-colors hover:text-primary">
+                  {label}
+                </Link>
+              ))}
+            </nav>
+            <ThemeToggle />
+            <div className="md:hidden">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <Menu className="h-6 w-6" />
+                    <span className="sr-only">Open menu</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right">
+                  <nav className="grid gap-6 text-lg font-medium mt-6">
+                    {navLinks.map(({ href, label }) => (
+                      <Link key={label} href={href} className="transition-colors hover:text-primary">
+                        {label}
+                      </Link>
+                    ))}
+                  </nav>
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
         </div>
       </div>
