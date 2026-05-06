@@ -6,9 +6,37 @@ import Footer from '@/components/layout/footer';
 import { ThemeProvider } from '@/components/theme-provider';
 import { AuthProvider } from '@/components/auth/auth-provider';
 
+const siteUrl = 'https://resumemasterai.netlify.app';
+
 export const metadata: Metadata = {
-  title: 'Resume Master AI',
-  description: 'AI-Powered Resume Builder',
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: 'Resume Master AI — Build Your Perfect Resume with AI',
+    template: '%s | Resume Master AI',
+  },
+  description: 'Create a professional, ATS-optimized resume in minutes using AI. Choose from 10 stunning templates, get AI-powered suggestions, and generate tailored cover letters instantly.',
+  keywords: ['resume builder', 'AI resume', 'ATS resume', 'cover letter generator', 'professional resume', 'resume templates', 'free resume builder'],
+  authors: [{ name: 'Resume Master AI' }],
+  creator: 'Resume Master AI',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: siteUrl,
+    siteName: 'Resume Master AI',
+    title: 'Resume Master AI — Build Your Perfect Resume with AI',
+    description: 'Create a professional, ATS-optimized resume in minutes using AI. 10 stunning templates. AI cover letter generator. Free to start.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Resume Master AI — Build Your Perfect Resume with AI',
+    description: 'Create a professional, ATS-optimized resume in minutes using AI. Free templates, AI suggestions & cover letter generator.',
+    creator: '@resumemasterai',
+  },
 };
 
 export default function RootLayout({
