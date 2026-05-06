@@ -6,7 +6,7 @@ export default function AboutPage() {
     <div className="container mx-auto px-4 py-12">
       <header className="text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-primary font-headline">
-          About ResumeAI
+          About Resume Master AI
         </h1>
         <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
           We leverage the power of artificial intelligence to help you create stunning, professional resumes in minutes, not hours.

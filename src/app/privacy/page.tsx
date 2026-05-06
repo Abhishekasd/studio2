@@ -14,7 +14,7 @@ export default function PrivacyPage() {
           <CardTitle className="font-headline">Our Commitment to Your Privacy</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 text-muted-foreground">
-          <p>ResumeAI ("we," "us," or "our") is committed to protecting your privacy. This Privacy Policy explains how we handle your information when you use our website and services.</p>
+          <p>Resume Master AI ("we," "us," or "our") is committed to protecting your privacy. This Privacy Policy explains how we handle your information when you use our website and services.</p>
           
           <h2 className="text-xl font-semibold text-foreground pt-4">Information We Do Not Collect</h2>
           <p>A core principle of our service is privacy by design. We do not require you to create an account, and we do not store your personal resume data—such as your name, contact details, work history, or skills—on our servers. All resume data you enter is processed and stored locally in your browser's sessionStorage or localStorage.</p>

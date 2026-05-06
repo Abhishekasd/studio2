@@ -8,17 +8,17 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 
 const testimonials = [
   {
-    quote: "ResumeAI transformed my job search. I created a professional resume in 10 minutes and got 3 interviews within a week!",
+    quote: "Resume Master AI transformed my job search. I created a professional resume in 10 minutes and got 3 interviews within a week!",
     name: "Sarah L.",
     title: "Marketing Manager",
   },
   {
-    quote: "As a developer, I wanted a clean, modern template. ResumeAI delivered. The AI suggestions were spot on.",
+    quote: "As a developer, I wanted a clean, modern template. Resume Master AI delivered. The AI suggestions were spot on.",
     name: "David C.",
     title: "Software Engineer",
   },
   {
-    quote: "I was struggling to get noticed. The ATS-friendly templates from ResumeAI made all the difference. Highly recommended!",
+    quote: "I was struggling to get noticed. The ATS-friendly templates from Resume Master AI made all the difference. Highly recommended!",
     name: "Maria G.",
     title: "Project Manager",
   },
@@ -40,7 +40,7 @@ export default function Home() {
         ></div>
         <div className="container mx-auto px-4 relative">
             <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-primary animate-fade-in-down font-headline">
-            Craft Your Future with ResumeAI
+            Craft Your Future with Resume Master AI
             </h1>
             <p className="mt-4 text-lg md:text-xl font-bold text-gray-700 max-w-2xl mx-auto animate-fade-in-up">
             Your career journey starts here – powered by AI.

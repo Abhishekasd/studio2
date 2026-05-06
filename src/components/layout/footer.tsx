@@ -9,10 +9,10 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center gap-2 mb-4 md:mb-0">
             <FileText className="h-6 w-6 text-white" />
-            <span className="font-bold text-lg font-headline">ResumeAI</span>
+            <span className="font-bold text-lg font-headline">Resume Master AI</span>
           </div>
           <p className="text-sm text-primary-foreground/80">
-            &copy; {currentYear} ResumeAI. All rights reserved.
+            &copy; {currentYear} Resume Master AI. All rights reserved.
           </p>
           <div className="flex space-x-4 mt-4 md:mt-0">
             <Link href="/terms" className="text-sm text-primary-foreground/80 hover:text-white">

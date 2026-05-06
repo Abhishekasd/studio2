@@ -5,7 +5,7 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 
 export const metadata: Metadata = {
-  title: 'ResumeAI',
+  title: 'Resume Master AI',
   description: 'AI-Powered Resume Builder',
 };
 
