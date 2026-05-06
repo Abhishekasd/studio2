@@ -37,7 +37,8 @@ export async function POST(request: NextRequest) {
 
     if (file.type === 'application/pdf') {
       // Defer loading pdf-parse to runtime to avoid build-time file read issues
-      const pdf = (await import('pdf-parse/lib/pdf-parse.js')).default;
+      const pdfModule = await import('pdf-parse/lib/pdf-parse.js');
+      const pdf = pdfModule.default || pdfModule;
       const data = await pdf(buffer);
       extractedText = data.text;
     } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
