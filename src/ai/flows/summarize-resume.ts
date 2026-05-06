@@ -32,7 +32,7 @@ const prompt = ai.definePrompt({
   name: 'summarizeResumePrompt',
   input: {schema: SummarizeResumeInputSchema},
   output: {schema: SummarizeResumeOutputSchema},
-  model: 'googleai/gemini-1.5-flash',
+  model: 'openai/gpt-4o-mini',
   prompt: `You are an expert resume summarizer. You will take the following information and summarize the resume.
 
 Name: {{{name}}}

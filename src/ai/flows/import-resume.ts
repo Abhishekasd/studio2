@@ -54,7 +54,7 @@ const prompt = ai.definePrompt({
   name: 'importResumePrompt',
   input: { schema: ImportResumeInputSchema },
   output: { schema: ImportResumeOutputSchema },
-  model: 'googleai/gemini-1.5-flash',
+  model: 'openai/gpt-4o-mini',
   prompt: `
 You are a world-class professional resume editor and career consultant.
 Your task is to analyze, enhance, and structure the provided resume text.
