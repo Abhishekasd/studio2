@@ -11,6 +11,7 @@ import {
 const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/#templates', label: 'Templates' },
+  { href: '/cover-letter', label: 'Cover Letters' },
   { href: '/about', label: 'About' },
   { href: '/pricing', label: 'Pricing' },
   { href: '/contact', label: 'Contact Us' },
