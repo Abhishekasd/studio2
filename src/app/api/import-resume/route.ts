@@ -4,6 +4,8 @@ import mammoth from 'mammoth';
 import { importResume } from '@/ai/flows/import-resume';
 import { recognize } from 'tesseract.js';
 
+export const dynamic = 'force-dynamic';
+
 export const config = {
   api: {
     bodyParser: false,

@@ -8,4 +8,5 @@ export const ai = genkit({
       baseURL: process.env.OPENAI_BASE_URL,
     }),
   ],
+  enableTracingAndMetrics: false,
 });
