@@ -53,4 +53,17 @@ export const templates: Template[] = [
     price: 49,
     sections: ['contact', 'summary', 'skills', 'experience', 'education', 'certifications', 'projects', 'achievements', 'publications', 'portfolio', 'references'],
   },
+  {
+    id: 'harvard-ats',
+    name: 'Harvard ATS',
+    type: 'free',
+    sections: ['contact', 'summary', 'experience', 'education', 'skills', 'certifications', 'achievements'],
+  },
+  {
+    id: 'creative-sidebar',
+    name: 'Creative Sidebar',
+    type: 'paid',
+    price: 49,
+    sections: ['contact', 'summary', 'skills', 'experience', 'education', 'projects', 'achievements'],
+  },
 ];

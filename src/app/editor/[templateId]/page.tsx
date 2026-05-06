@@ -629,23 +629,156 @@ export default function EditorPage() {
             <Card>
                 <CardHeader><CardTitle>Live Preview</CardTitle></CardHeader>
                 <CardContent className="overflow-x-auto pb-4">
-                    <div ref={resumePreviewRef} className="bg-white text-black p-4 md:p-8 rounded-md shadow-lg aspect-[8.5/11] min-w-[700px] overflow-y-auto font-sans mx-auto">
-                        <div className="text-center mb-6">
-                            <h1 className="text-4xl font-extrabold tracking-tight">{formData.contact.name || 'Your Name'}</h1>
-                            <div className="flex justify-center items-center flex-wrap gap-x-4 text-sm mt-2">
-                                {formData.contact.email && <span>{formData.contact.email}</span>}
-                                {formData.contact.phone && <span>{formData.contact.phone}</span>}
-                                {formData.contact.website && <a href={formData.contact.website} className="text-blue-600 hover:underline">{formData.contact.website}</a>}
-                                {formData.contact.linkedin && <a href={formData.contact.linkedin} className="text-blue-600 hover:underline">{formData.contact.linkedin}</a>}
-                            </div>
+                    {/* ── Harvard ATS Preview ── */}
+                    {template.id === 'harvard-ats' && (
+                      <div ref={resumePreviewRef} className="bg-white text-black p-8 rounded-md shadow-lg aspect-[8.5/11] min-w-[700px] overflow-y-auto font-serif mx-auto">
+                        {/* Header */}
+                        <div className="text-center mb-4 pb-3 border-b-2 border-black">
+                          <h1 className="text-3xl font-bold tracking-tight uppercase">{formData.contact.name || 'Your Name'}</h1>
+                          <div className="flex justify-center items-center flex-wrap gap-x-3 text-xs mt-1">
+                            {formData.contact.email && <span>{formData.contact.email}</span>}
+                            {formData.contact.phone && <><span className="text-gray-400">|</span><span>{formData.contact.phone}</span></>}
+                            {formData.contact.linkedin && <><span className="text-gray-400">|</span><span>{formData.contact.linkedin}</span></>}
+                            {formData.contact.website && <><span className="text-gray-400">|</span><span>{formData.contact.website}</span></>}
+                          </div>
                         </div>
-                        
-                        {template.sections.map(section => (
-                            <div key={`preview-${section}`}>
-                                {renderPreviewSection(section, formData)}
+                        {/* Summary */}
+                        {formData.summary && <div className="mb-4"><h2 className="text-sm font-bold uppercase tracking-widest border-b border-black mb-1">Summary</h2><p className="text-xs leading-relaxed">{formData.summary}</p></div>}
+                        {/* Experience */}
+                        {formData.experience.some(e => e.title || e.company) && (
+                          <div className="mb-4"><h2 className="text-sm font-bold uppercase tracking-widest border-b border-black mb-2">Experience</h2>
+                            {formData.experience.map((exp, i) => (exp.title || exp.company) && (
+                              <div key={i} className="mb-3 text-xs">
+                                <div className="flex justify-between font-bold"><span>{exp.title}</span><span>{exp.dates}</span></div>
+                                <div className="italic mb-1">{exp.company}</div>
+                                {exp.description && <ul className="list-disc list-inside space-y-0.5">{exp.description.split('\n').map((line, j) => line && <li key={j}>{line.replace(/•|-/g,'').trim()}</li>)}</ul>}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {/* Education */}
+                        {formData.education.some(e => e.degree || e.institution) && (
+                          <div className="mb-4"><h2 className="text-sm font-bold uppercase tracking-widest border-b border-black mb-2">Education</h2>
+                            {formData.education.map((edu, i) => (edu.degree || edu.institution) && (
+                              <div key={i} className="mb-2 text-xs flex justify-between"><div><div className="font-bold">{edu.degree}</div><div className="italic">{edu.institution}</div></div><div className="font-bold">{edu.dates}</div></div>
+                            ))}
+                          </div>
+                        )}
+                        {/* Skills */}
+                        {formData.skills.filter(s => s.value).length > 0 && (
+                          <div className="mb-4"><h2 className="text-sm font-bold uppercase tracking-widest border-b border-black mb-1">Skills</h2><p className="text-xs">{formData.skills.map(s=>s.value).filter(v=>v).join(' • ')}</p></div>
+                        )}
+                        {/* Certifications */}
+                        {formData.certifications.some(c => c.name) && (
+                          <div className="mb-4"><h2 className="text-sm font-bold uppercase tracking-widest border-b border-black mb-1">Certifications</h2>
+                            {formData.certifications.map((cert, i) => cert.name && <div key={i} className="text-xs"><span className="font-bold">{cert.name}</span>{cert.source && <span className="italic"> — {cert.source}</span>}</div>)}
+                          </div>
+                        )}
+                        {/* Achievements */}
+                        {formData.achievements.filter(a=>a.value).length > 0 && (
+                          <div className="mb-4"><h2 className="text-sm font-bold uppercase tracking-widest border-b border-black mb-1">Achievements</h2>
+                            <ul className="list-disc list-inside text-xs">{formData.achievements.map((a,i)=>a.value&&<li key={i}>{a.value}</li>)}</ul>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* ── Creative Sidebar Preview ── */}
+                    {template.id === 'creative-sidebar' && (
+                      <div ref={resumePreviewRef} className="bg-white text-black rounded-md shadow-lg aspect-[8.5/11] min-w-[700px] overflow-y-auto font-sans mx-auto flex">
+                        {/* Left sidebar */}
+                        <div className="w-[38%] bg-slate-800 text-white p-6 flex flex-col gap-5">
+                          <div>
+                            <h1 className="text-2xl font-extrabold leading-tight">{formData.contact.name || 'Your Name'}</h1>
+                            {formData.summary && <p className="text-xs text-slate-300 mt-2 leading-relaxed line-clamp-4">{formData.summary}</p>}
+                          </div>
+                          {/* Contact */}
+                          <div>
+                            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Contact</h2>
+                            {formData.contact.email && <p className="text-xs text-slate-200 mb-1 break-all">✉ {formData.contact.email}</p>}
+                            {formData.contact.phone && <p className="text-xs text-slate-200 mb-1">📞 {formData.contact.phone}</p>}
+                            {formData.contact.linkedin && <p className="text-xs text-slate-200 mb-1 break-all">🔗 {formData.contact.linkedin}</p>}
+                            {formData.contact.website && <p className="text-xs text-slate-200 mb-1 break-all">🌐 {formData.contact.website}</p>}
+                          </div>
+                          {/* Skills */}
+                          {formData.skills.filter(s=>s.value).length > 0 && (
+                            <div>
+                              <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Skills</h2>
+                              <div className="flex flex-wrap gap-1">
+                                {formData.skills.map(s=>s.value).filter(v=>v).map((skill,i)=>(
+                                  <span key={i} className="text-xs bg-slate-600 text-slate-100 px-2 py-0.5 rounded-full">{skill}</span>
+                                ))}
+                              </div>
                             </div>
-                        ))}
-                    </div>
+                          )}
+                          {/* Education */}
+                          {formData.education.some(e=>e.degree||e.institution) && (
+                            <div>
+                              <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Education</h2>
+                              {formData.education.map((edu,i)=>(edu.degree||edu.institution)&&(
+                                <div key={i} className="mb-2 text-xs"><div className="font-bold text-white">{edu.degree}</div><div className="text-slate-300">{edu.institution}</div><div className="text-slate-400">{edu.dates}</div></div>
+                              ))}
+                            </div>
+                          )}
+                          {/* Achievements */}
+                          {formData.achievements.filter(a=>a.value).length > 0 && (
+                            <div>
+                              <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Achievements</h2>
+                              <ul className="text-xs text-slate-200 space-y-1">{formData.achievements.map((a,i)=>a.value&&<li key={i} className="flex gap-1"><span className="text-amber-400">▸</span>{a.value}</li>)}</ul>
+                            </div>
+                          )}
+                        </div>
+                        {/* Right main content */}
+                        <div className="flex-1 p-6 flex flex-col gap-5 overflow-y-auto">
+                          {/* Experience */}
+                          {formData.experience.some(e=>e.title||e.company) && (
+                            <div>
+                              <h2 className="text-sm font-bold uppercase tracking-widest text-slate-800 border-b-2 border-amber-400 pb-1 mb-3">Experience</h2>
+                              {formData.experience.map((exp,i)=>(exp.title||exp.company)&&(
+                                <div key={i} className="mb-4 text-xs">
+                                  <div className="flex justify-between items-start"><span className="font-bold text-slate-800 text-sm">{exp.title}</span><span className="text-slate-500 text-[10px]">{exp.dates}</span></div>
+                                  <div className="text-amber-600 font-medium mb-1">{exp.company}</div>
+                                  {exp.description && <ul className="list-disc list-inside space-y-0.5 text-slate-600">{exp.description.split('\n').map((line,j)=>line&&<li key={j}>{line.replace(/•|-/g,'').trim()}</li>)}</ul>}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {/* Projects */}
+                          {formData.projects.some(p=>p.name) && (
+                            <div>
+                              <h2 className="text-sm font-bold uppercase tracking-widest text-slate-800 border-b-2 border-amber-400 pb-1 mb-3">Projects</h2>
+                              {formData.projects.map((proj,i)=>proj.name&&(
+                                <div key={i} className="mb-3 text-xs">
+                                  <div className="flex justify-between"><span className="font-bold text-slate-800">{proj.name}</span>{proj.url&&<a href={proj.url} className="text-amber-600 underline">Link</a>}</div>
+                                  <p className="text-slate-600 mt-0.5">{proj.description}</p>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ── Default Preview (all other templates) ── */}
+                    {template.id !== 'harvard-ats' && template.id !== 'creative-sidebar' && (
+                      <div ref={resumePreviewRef} className="bg-white text-black p-4 md:p-8 rounded-md shadow-lg aspect-[8.5/11] min-w-[700px] overflow-y-auto font-sans mx-auto">
+                          <div className="text-center mb-6">
+                              <h1 className="text-4xl font-extrabold tracking-tight">{formData.contact.name || 'Your Name'}</h1>
+                              <div className="flex justify-center items-center flex-wrap gap-x-4 text-sm mt-2">
+                                  {formData.contact.email && <span>{formData.contact.email}</span>}
+                                  {formData.contact.phone && <span>{formData.contact.phone}</span>}
+                                  {formData.contact.website && <a href={formData.contact.website} className="text-blue-600 hover:underline">{formData.contact.website}</a>}
+                                  {formData.contact.linkedin && <a href={formData.contact.linkedin} className="text-blue-600 hover:underline">{formData.contact.linkedin}</a>}
+                              </div>
+                          </div>
+                          
+                          {template.sections.map(section => (
+                              <div key={`preview-${section}`}>
+                                  {renderPreviewSection(section, formData)}
+                              </div>
+                          ))}
+                      </div>
+                    )}
                 </CardContent>
             </Card>
         </div>
@@ -653,3 +786,4 @@ export default function EditorPage() {
     </div>
   );
 }
+
