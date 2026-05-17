@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Trash2, PlusCircle, BrainCircuit, Download, Image as ImageIcon, Loader2, Upload, Cloud, CloudUpload, Check } from 'lucide-react';
+import { Trash2, PlusCircle, BrainCircuit, Download, Image as ImageIcon, Loader2, Upload, Cloud, CloudUpload, Check, Phone, Mail, Globe, Linkedin } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { summarizeResume } from '@/ai/flows/summarize-resume';
 import { generateResumeSuggestions } from '@/ai/flows/generate-resume-suggestions';
@@ -30,6 +30,11 @@ const formSchema = z.object({
     phone: z.string(),
     website: z.string().url().optional().or(z.literal('')),
     linkedin: z.string().url().optional().or(z.literal('')),
+    image: z.string().optional(),
+    dob: z.string().optional(),
+    address: z.string().optional(),
+    nationality: z.string().optional(),
+    languages: z.string().optional(),
   }),
   summary: z.string(),
   skills: z.array(z.object({ value: z.string() })),
@@ -43,6 +48,7 @@ const formSchema = z.object({
     degree: z.string(),
     institution: z.string(),
     dates: z.string(),
+    description: z.string().optional().or(z.literal('')),
   })),
   certifications: z.array(z.object({ name: z.string(), source: z.string() })),
   projects: z.array(z.object({ name: z.string(), description: z.string(), url: z.string().url().optional().or(z.literal('')) })),
@@ -60,6 +66,92 @@ const PreviewSection = ({ title, children, className }: { title: string; childre
         {children}
     </div>
 );
+
+const parseMarkdownTable = (text: string) => {
+  if (!text) return null;
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  const tableLines = lines.filter(line => line.startsWith('|'));
+  if (tableLines.length < 2) return null;
+  
+  const headers = tableLines[0].split('|').map(h => h.trim()).filter((h, idx, arr) => idx > 0 && idx < arr.length - 1);
+  
+  const rows = tableLines.slice(1)
+    .filter(line => !line.match(/^\|[\s-——:|]*$/))
+    .map(line => line.split('|').map(c => c.trim()).filter((c, idx, arr) => idx > 0 && idx < arr.length - 1));
+    
+  return { headers, rows };
+};
+
+const renderBulletsOrText = (text: string) => {
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  
+  return (
+    <ul className="list-disc list-inside space-y-1 text-xs text-slate-700 mt-2">
+      {lines.map((line, j) => {
+        const cleanLine = line.replace(/^[•\-\*]\s*/, '');
+        return <li key={j} className="leading-relaxed">{cleanLine}</li>;
+      })}
+    </ul>
+  );
+};
+
+const renderEducationDescription = (description: string) => {
+  if (!description) return null;
+  
+  const lines = description.split('\n');
+  const tableStartIndex = lines.findIndex(line => line.trim().startsWith('|') && lines[lines.indexOf(line) + 1]?.trim().startsWith('|'));
+  
+  if (tableStartIndex !== -1) {
+    const tableLines: string[] = [];
+    const nonTableLinesBefore: string[] = [];
+    const nonTableLinesAfter: string[] = [];
+    
+    lines.forEach(line => {
+      if (line.trim().startsWith('|')) {
+        tableLines.push(line);
+      } else if (tableLines.length === 0) {
+        nonTableLinesBefore.push(line);
+      } else {
+        nonTableLinesAfter.push(line);
+      }
+    });
+    
+    const parsedTable = parseMarkdownTable(tableLines.join('\n'));
+    
+    return (
+      <div className="space-y-2 mt-2 w-full">
+        {nonTableLinesBefore.filter(l => l.trim()).length > 0 && renderBulletsOrText(nonTableLinesBefore.join('\n'))}
+        
+        {parsedTable && (
+          <div className="overflow-x-auto my-3 w-full">
+            <table className="min-w-full border-collapse border border-slate-300 text-xs">
+              <thead>
+                <tr className="bg-[#0f2942] text-white">
+                  {parsedTable.headers.map((h, i) => (
+                    <th key={i} className="border border-slate-300 px-3 py-2 text-center font-bold">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {parsedTable.rows.map((row, i) => (
+                  <tr key={i} className={i % 2 === 1 ? 'bg-slate-50' : 'bg-white'}>
+                    {row.map((cell, j) => (
+                      <td key={j} className="border border-slate-300 px-3 py-2 text-center text-slate-700 font-medium">{cell}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        
+        {nonTableLinesAfter.filter(l => l.trim()).length > 0 && renderBulletsOrText(nonTableLinesAfter.join('\n'))}
+      </div>
+    );
+  }
+  
+  return renderBulletsOrText(description);
+};
 
 
 export default function EditorPage() {
@@ -79,11 +171,11 @@ export default function EditorPage() {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      contact: { name: '', email: '', phone: '', website: '', linkedin: '' },
+      contact: { name: '', email: '', phone: '', website: '', linkedin: '', image: '', dob: '', address: '', nationality: '', languages: '' },
       summary: '',
       skills: [{ value: '' }],
       experience: [{ title: '', company: '', dates: '', description: '' }],
-      education: [{ degree: '', institution: '', dates: '' }],
+      education: [{ degree: '', institution: '', dates: '', description: '' }],
       certifications: [{ name: '', source: '' }],
       projects: [{ name: '', description: '', url: '' }],
       achievements: [{ value: '' }],
@@ -120,6 +212,80 @@ export default function EditorPage() {
     setTemplate(foundTemplate);
   }, [params.templateId, router]);
 
+  useEffect(() => {
+    if (template?.id === 'law-scholar') {
+      const currentName = form.getValues('contact.name');
+      // If name is empty, pre-fill with Trapti's demo data
+      if (!currentName) {
+        form.reset({
+          contact: {
+            name: 'TRAPTI SHARMA',
+            email: 'traptis623@gmail.com',
+            phone: '7983993160',
+            website: '',
+            linkedin: '',
+            image: '', // Can be uploaded by user
+            dob: '06-02-2006',
+            address: 'Aligarh, Uttar Pradesh',
+            nationality: 'Indian',
+            languages: 'English, Hindi',
+          },
+          summary: 'A responsible and organized law student with a strong academic record and proven ability to improve project productivity. Seeking to contribute effectively to a professional organization through dedication, discipline, and teamwork.',
+          skills: [
+            { value: 'Time Management' },
+            { value: 'Team Collaboration' },
+            { value: 'Research & Analysis' },
+            { value: 'Discipline & Positive Attitude' }
+          ],
+          experience: [
+            {
+              title: 'Internship Objective',
+              company: 'Law Firm / Legal Department',
+              dates: 'Summer 2024',
+              description: 'To obtain an internship opportunity where I can apply my legal knowledge, enhance my practical skills, and contribute to the organization while learning from experienced professionals.'
+            },
+            {
+              title: 'Key Strengths',
+              company: 'Vivekananda College of Law',
+              dates: '2023 - Present',
+              description: '• Strong academic foundation in law with consistent performance\n• Analytical mindset with attention to detail\n• Eager to learn and take on new challenges\n• Good communication and interpersonal skills'
+            },
+            {
+              title: 'Declaration',
+              company: 'Self',
+              dates: 'Date: 17-05-2026',
+              description: 'I hereby declare that the information provided above is true and correct to the best of my knowledge and belief.'
+            }
+          ],
+          education: [
+            {
+              degree: 'Bachelor of Arts and Bachelor of Laws (B.A.LL.B.)',
+              institution: 'Vivekananda College of Law, Aligarh',
+              dates: '2023 - Present',
+              description: '| Semester | Marks | Percentage | Year |\n|---|---|---|---|\n| 1st | 389 / 500 | 77.8% | 2023-24 |\n| 2nd | 380 / 500 | 76% | 2024 |\n| 3rd | 408 / 500 | 81.6% | 2024 |\n| 4th | 450 / 500 | 90% | 2025 |\n| 5th | 444 / 500 | 88.8% | 2025 |\n\n• Intermediate (Commerce): 421 / 500 - 84.2% - Saraswati Vidya Mandir Sr. Sec. School, Aligarh\n• High School: 372 / 500 - 74.4% - Saraswati Vidya Mandir Sr. Sec. School, Aligarh'
+            }
+          ],
+          certifications: [
+            { name: 'Moot Court Participant', source: 'National Moot Court Competition' }
+          ],
+          projects: [
+            { name: '', description: '', url: '' }
+          ],
+          achievements: [
+            { value: 'Participant, National Moot Court Competition' },
+            { value: 'Winner, Debate Competition' },
+            { value: 'Essay Writing, Dance, and Speech Competitions' }
+          ],
+          publications: [
+            { title: '', url: '' }
+          ],
+          portfolio: '',
+          references: 'Available upon request.',
+        });
+      }
+    }
+  }, [template, form]);
+
   const handleGenerateSummary = async () => {
     setIsAiLoading(true);
     try {
@@ -154,28 +320,122 @@ export default function EditorPage() {
   };
   
   const handleDownload = async (format: 'pdf' | 'png') => {
-    if (!resumePreviewRef.current) return;
+    const element = resumePreviewRef.current;
+    if (!element) return;
     setIsDownloading(format);
     
-    const canvas = await html2canvas(resumePreviewRef.current, { scale: 3 });
+    // Save original styles & scroll state to restore later
+    const originalScrollTop = element.scrollTop;
+    const originalScrollLeft = element.scrollLeft;
+    
+    const originalHeight = element.style.height;
+    const originalMaxHeight = element.style.maxHeight;
+    const originalOverflow = element.style.overflow;
+    const originalOverflowY = element.style.overflowY;
+    const originalAspectRatio = element.style.aspectRatio;
 
-    if(format === 'png') {
-      const imgData = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.download = `${form.getValues().contact.name.replace(' ', '_')}_resume.png`;
-      link.href = imgData;
-      link.click();
-    } else {
-      const pdf = new jsPDF({
-        orientation: 'p',
-        unit: 'px',
-        format: [canvas.width, canvas.height]
+    // Temporarily scroll to the absolute top/left to avoid clipping/offset bugs in html2canvas
+    element.scrollTop = 0;
+    element.scrollLeft = 0;
+
+    // Force parent element to expand to its full natural content height
+    element.style.height = 'auto';
+    element.style.maxHeight = 'none';
+    element.style.overflow = 'visible';
+    element.style.overflowY = 'visible';
+    element.style.aspectRatio = 'auto';
+
+    // Find all internally scrollable children and temporarily override their styles
+    const scrollableElements = element.querySelectorAll('.overflow-y-auto, [class*="overflow-y-auto"], .overflow-auto, [class*="overflow-auto"]');
+    const originalChildStyles = Array.from(scrollableElements).map((el: any) => ({
+      el,
+      height: el.style.height,
+      maxHeight: el.style.maxHeight,
+      overflow: el.style.overflow,
+      overflowY: el.style.overflowY,
+    }));
+
+    scrollableElements.forEach((el: any) => {
+      el.style.height = 'auto';
+      el.style.maxHeight = 'none';
+      el.style.overflow = 'visible';
+      el.style.overflowY = 'visible';
+    });
+
+    // Wait a brief tick for the browser layout to recalculate
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    try {
+      const canvas = await html2canvas(element, {
+        scale: 3, // Premium high-resolution print scaling
+        useCORS: true, // Crucial to load cross-origin images without truncation
+        allowTaint: true,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: element.scrollWidth,
+        windowHeight: element.scrollHeight,
+        backgroundColor: '#ffffff', // Guarantee solid background color
       });
-      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, canvas.width, canvas.height);
-      pdf.save(`${form.getValues().contact.name.replace(' ', '_')}_resume.pdf`);
-    }
 
-    setIsDownloading(null);
+      // Restore original parent styles & scroll state immediately
+      element.style.height = originalHeight;
+      element.style.maxHeight = originalMaxHeight;
+      element.style.overflow = originalOverflow;
+      element.style.overflowY = originalOverflowY;
+      element.style.aspectRatio = originalAspectRatio;
+      element.scrollTop = originalScrollTop;
+      element.scrollLeft = originalScrollLeft;
+
+      // Restore original scrollable child styles
+      originalChildStyles.forEach(({ el, height, maxHeight, overflow, overflowY }) => {
+        el.style.height = height;
+        el.style.maxHeight = maxHeight;
+        el.style.overflow = overflow;
+        el.style.overflowY = overflowY;
+      });
+
+      const nameSlug = (form.getValues().contact.name || 'resume').trim().replace(/\s+/g, '_');
+
+      if (format === 'png') {
+        const imgData = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.download = `${nameSlug}_resume.png`;
+        link.href = imgData;
+        link.click();
+      } else {
+        const imgWidth = canvas.width;
+        const imgHeight = canvas.height;
+        
+        // Create jsPDF using exact canvas dimensions
+        const pdf = new jsPDF({
+          orientation: imgWidth > imgHeight ? 'l' : 'p',
+          unit: 'px',
+          format: [imgWidth, imgHeight]
+        });
+        
+        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, imgWidth, imgHeight, undefined, 'FAST');
+        pdf.save(`${nameSlug}_resume.pdf`);
+      }
+    } catch (error) {
+      console.error('Download generation error:', error);
+      
+      // Safety recovery in case of error
+      element.style.height = originalHeight;
+      element.style.maxHeight = originalMaxHeight;
+      element.style.overflow = originalOverflow;
+      element.style.overflowY = originalOverflowY;
+      element.style.aspectRatio = originalAspectRatio;
+      element.scrollTop = originalScrollTop;
+      element.scrollLeft = originalScrollLeft;
+      originalChildStyles.forEach(({ el, height, maxHeight, overflow, overflowY }) => {
+        el.style.height = height;
+        el.style.maxHeight = maxHeight;
+        el.style.overflow = overflow;
+        el.style.overflowY = overflowY;
+      });
+    } finally {
+      setIsDownloading(null);
+    }
   };
   
   const handleTriggerUpload = () => {
@@ -293,6 +553,17 @@ export default function EditorPage() {
     }
   };
 
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        form.setValue('contact.image', reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const renderSection = (section: Section) => {
     switch (section) {
       case 'contact':
@@ -305,6 +576,30 @@ export default function EditorPage() {
               <FormField name="contact.phone" control={form.control} render={({ field }) => (<FormItem><FormLabel>Phone</FormLabel><FormControl><Input placeholder="+1 234 567 890" {...field} /></FormControl><FormMessage /></FormItem>)} />
               <FormField name="contact.website" control={form.control} render={({ field }) => (<FormItem><FormLabel>Website/Portfolio</FormLabel><FormControl><Input placeholder="https://yourportfolio.com" {...field} /></FormControl><FormMessage /></FormItem>)} />
               <FormField name="contact.linkedin" control={form.control} render={({ field }) => (<FormItem><FormLabel>LinkedIn</FormLabel><FormControl><Input placeholder="https://linkedin.com/in/yourprofile" {...field} /></FormControl><FormMessage /></FormItem>)} />
+              
+              <div className="border-t pt-4 mt-4 space-y-4">
+                <h3 className="font-semibold text-sm text-muted-foreground">Additional Details (Optional)</h3>
+                
+                <FormItem>
+                  <FormLabel>Profile Photo</FormLabel>
+                  <FormControl>
+                    <div className="flex items-center gap-4">
+                      <Input type="file" accept="image/*" onChange={handlePhotoUpload} className="cursor-pointer" />
+                      {form.watch('contact.image') && (
+                        <div className="relative w-12 h-12 border rounded overflow-hidden flex items-center justify-center bg-muted">
+                          <img src={form.watch('contact.image')} alt="Preview" className="w-full h-full object-cover" />
+                          <Button type="button" variant="destructive" size="icon" className="absolute -top-1 -right-1 w-5 h-5 rounded-full p-0 flex items-center justify-center text-xs" onClick={() => form.setValue('contact.image', '')}>×</Button>
+                        </div>
+                      )}
+                    </div>
+                  </FormControl>
+                </FormItem>
+
+                <FormField name="contact.dob" control={form.control} render={({ field }) => (<FormItem><FormLabel>Date of Birth</FormLabel><FormControl><Input placeholder="e.g., 06-02-2006" {...field} /></FormControl></FormItem>)} />
+                <FormField name="contact.address" control={form.control} render={({ field }) => (<FormItem><FormLabel>Address</FormLabel><FormControl><Input placeholder="e.g., Aligarh, Uttar Pradesh" {...field} /></FormControl></FormItem>)} />
+                <FormField name="contact.nationality" control={form.control} render={({ field }) => (<FormItem><FormLabel>Nationality</FormLabel><FormControl><Input placeholder="e.g., Indian" {...field} /></FormControl></FormItem>)} />
+                <FormField name="contact.languages" control={form.control} render={({ field }) => (<FormItem><FormLabel>Languages</FormLabel><FormControl><Input placeholder="e.g., English, Hindi" {...field} /></FormControl></FormItem>)} />
+              </div>
             </CardContent>
           </Card>
         );
@@ -373,10 +668,11 @@ export default function EditorPage() {
                             <FormField name={`education.${index}.degree`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Degree/Certificate</FormLabel><FormControl><Input placeholder="B.S. in Computer Science" {...field} /></FormControl></FormItem>)} />
                             <FormField name={`education.${index}.institution`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Institution</FormLabel><FormControl><Input placeholder="University of Technology" {...field} /></FormControl></FormItem>)} />
                             <FormField name={`education.${index}.dates`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Dates</FormLabel><FormControl><Input placeholder="2018 - 2022" {...field} /></FormControl></FormItem>)} />
+                            <FormField name={`education.${index}.description`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Details / Markdown Table / Bullets (Optional)</FormLabel><FormControl><Textarea placeholder="Any additional details, bullet points, or semester marks table..." {...field} /></FormControl></FormItem>)} />
                             <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeEducation(index)}><Trash2 className="text-destructive"/></Button>
                         </div>
                     ))}
-                    <Button type="button" variant="outline" size="sm" onClick={() => appendEducation({ degree: '', institution: '', dates: '' })}><PlusCircle />Add Education</Button>
+                    <Button type="button" variant="outline" size="sm" onClick={() => appendEducation({ degree: '', institution: '', dates: '', description: '' })}><PlusCircle />Add Education</Button>
                 </CardContent>
             </Card>
         );
@@ -514,10 +810,11 @@ export default function EditorPage() {
             return data.education.some(e => e.degree || e.institution) && (
                 <PreviewSection title="Education">
                     {data.education.map((edu, i) => (edu.degree || edu.institution) && (
-                         <div key={i} className="mb-2 text-sm grid grid-cols-[1fr,auto] gap-x-4">
+                         <div key={i} className="mb-4 text-sm grid grid-cols-[1fr,auto] gap-x-4">
                             <div className="font-bold">{edu.degree}</div>
                             <div className="font-medium text-right">{edu.dates}</div>
                             <div className="italic col-span-2">{edu.institution}</div>
+                            {edu.description && <div className="col-span-2">{renderEducationDescription(edu.description)}</div>}
                         </div>
                     ))}
                 </PreviewSection>
@@ -695,10 +992,30 @@ export default function EditorPage() {
                           {/* Contact */}
                           <div>
                             <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Contact</h2>
-                            {formData.contact.email && <p className="text-xs text-slate-200 mb-1 break-all">✉ {formData.contact.email}</p>}
-                            {formData.contact.phone && <p className="text-xs text-slate-200 mb-1">📞 {formData.contact.phone}</p>}
-                            {formData.contact.linkedin && <p className="text-xs text-slate-200 mb-1 break-all">🔗 {formData.contact.linkedin}</p>}
-                            {formData.contact.website && <p className="text-xs text-slate-200 mb-1 break-all">🌐 {formData.contact.website}</p>}
+                            {formData.contact.email && (
+                              <p className="text-xs text-slate-200 mb-1.5 break-all flex items-center gap-2">
+                                <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                <span>{formData.contact.email}</span>
+                              </p>
+                            )}
+                            {formData.contact.phone && (
+                              <p className="text-xs text-slate-200 mb-1.5 flex items-center gap-2">
+                                <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                <span>{formData.contact.phone}</span>
+                              </p>
+                            )}
+                            {formData.contact.linkedin && (
+                              <p className="text-xs text-slate-200 mb-1.5 break-all flex items-center gap-2">
+                                <Linkedin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                <span>{formData.contact.linkedin}</span>
+                              </p>
+                            )}
+                            {formData.contact.website && (
+                              <p className="text-xs text-slate-200 mb-1.5 break-all flex items-center gap-2">
+                                <Globe className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                <span>{formData.contact.website}</span>
+                              </p>
+                            )}
                           </div>
                           {/* Skills */}
                           {formData.skills.filter(s=>s.value).length > 0 && (
@@ -758,9 +1075,217 @@ export default function EditorPage() {
                         </div>
                       </div>
                     )}
+                     {/* ── Law Scholar Preview ── */}
+                    {template.id === 'law-scholar' && (
+                      <div ref={resumePreviewRef} className="bg-white text-[#0f2942] rounded-md shadow-lg aspect-[8.5/11] min-w-[700px] overflow-y-auto font-sans mx-auto flex border border-slate-200">
+                        {/* Left Column (Sidebar) - Light blue/slate */}
+                        <div className="w-[32%] bg-[#f0f4f8] p-5 flex flex-col gap-6 border-r border-slate-200">
+                          {/* Image Box */}
+                          <div className="w-full flex justify-center mb-1">
+                            <div className="w-32 h-36 border-2 border-[#0f2942] bg-white flex items-center justify-center overflow-hidden relative">
+                              {formData.contact.image ? (
+                                <img src={formData.contact.image} alt="Profile" className="w-full h-full object-cover block shrink-0 max-w-full max-h-full" style={{ objectFit: 'cover' }} />
+                              ) : (
+                                <div className="text-slate-400 text-xs text-center px-2">Photo Placeholder</div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Personal Details */}
+                          {(formData.contact.dob || formData.contact.address || formData.contact.nationality) && (
+                            <div>
+                              <h2 className="text-xs font-bold uppercase tracking-wider text-[#0f2942] border-b border-[#0f2942] pb-1 mb-2">Personal Details</h2>
+                              <div className="space-y-1.5 text-xs text-slate-700">
+                                {formData.contact.dob && (
+                                  <div>
+                                    <span className="font-semibold block text-[10px] text-slate-500 uppercase">Date of Birth</span>
+                                    <span>{formData.contact.dob}</span>
+                                  </div>
+                                )}
+                                {formData.contact.address && (
+                                  <div>
+                                    <span className="font-semibold block text-[10px] text-slate-500 uppercase">Address</span>
+                                    <span>{formData.contact.address}</span>
+                                  </div>
+                                )}
+                                {formData.contact.nationality && (
+                                  <div>
+                                    <span className="font-semibold block text-[10px] text-slate-500 uppercase">Nationality</span>
+                                    <span>{formData.contact.nationality}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Skills */}
+                          {formData.skills.filter(s => s.value).length > 0 && (
+                            <div>
+                              <h2 className="text-xs font-bold uppercase tracking-wider text-[#0f2942] border-b border-[#0f2942] pb-1 mb-2">Skills</h2>
+                              <ul className="list-disc list-inside text-xs text-slate-700 space-y-1">
+                                {formData.skills.filter(s => s.value).map((s, i) => (
+                                  <li key={i} className="leading-relaxed">{s.value}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+
+                          {/* Achievements */}
+                          {formData.achievements.filter(a => a.value).length > 0 && (
+                            <div>
+                              <h2 className="text-xs font-bold uppercase tracking-wider text-[#0f2942] border-b border-[#0f2942] pb-1 mb-2">Achievements</h2>
+                              <ul className="list-disc list-inside text-xs text-slate-700 space-y-1">
+                                {formData.achievements.filter(a => a.value).map((a, i) => (
+                                  <li key={i} className="leading-relaxed">{a.value}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+
+                          {/* Languages */}
+                          {formData.contact.languages && (
+                            <div>
+                              <h2 className="text-xs font-bold uppercase tracking-wider text-[#0f2942] border-b border-[#0f2942] pb-1 mb-2">Languages</h2>
+                              <p className="text-xs text-slate-700 leading-relaxed">{formData.contact.languages}</p>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Right Main Column (White background) */}
+                        <div className="flex-1 p-6 flex flex-col gap-5 overflow-y-auto">
+                          {/* Centered Name and Contacts */}
+                          <div className="text-center pb-3 mb-2 border-b border-[#0f2942]/20">
+                            <h1 className="text-2xl font-extrabold text-[#0f2942] uppercase tracking-wide">{formData.contact.name || 'Your Name'}</h1>
+                            
+                            <div className="flex justify-center items-center gap-x-4 text-xs mt-2 text-slate-600">
+                              {formData.contact.phone && (
+                                <span className="inline-flex items-center gap-1.5 align-middle">
+                                  <span className="w-4 h-4 rounded-full bg-[#0f2942] text-white inline-flex items-center justify-center shrink-0 align-middle select-none">
+                                    <Phone className="w-2.5 h-2.5 text-white shrink-0" />
+                                  </span>
+                                  <span>{formData.contact.phone}</span>
+                                </span>
+                              )}
+                              {formData.contact.email && (
+                                <span className="inline-flex items-center gap-1.5 align-middle">
+                                  <span className="w-4 h-4 rounded-full bg-[#0f2942] text-white inline-flex items-center justify-center shrink-0 align-middle select-none">
+                                    <Mail className="w-2.5 h-2.5 text-white shrink-0" />
+                                  </span>
+                                  <span className="break-all">{formData.contact.email}</span>
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Career Objective */}
+                          {formData.summary && (
+                            <div>
+                              <h2 className="text-xs font-bold uppercase tracking-wider text-[#0f2942] flex items-center gap-2 mb-1.5">
+                                <span className="w-2.5 h-2.5 rounded-full bg-[#0f2942] inline-flex shrink-0 align-middle"></span>
+                                <span>Career Objective</span>
+                              </h2>
+                              <div className="w-full h-[1px] bg-slate-300 mb-2"></div>
+                              <p className="text-xs text-slate-700 leading-relaxed pl-1">{formData.summary}</p>
+                            </div>
+                          )}
+
+                          {/* Education */}
+                          {formData.education.some(e => e.degree || e.institution) && (
+                            <div>
+                              <h2 className="text-xs font-bold uppercase tracking-wider text-[#0f2942] flex items-center gap-2 mb-1.5">
+                                <span className="w-2.5 h-2.5 rounded-full bg-[#0f2942] inline-flex shrink-0 align-middle"></span>
+                                <span>Education</span>
+                              </h2>
+                              <div className="w-full h-[1px] bg-slate-300 mb-2"></div>
+                              
+                              <div className="space-y-4 pl-1">
+                                {formData.education.map((edu, i) => (edu.degree || edu.institution) && (
+                                  <div key={i} className="text-xs">
+                                    <div className="flex justify-between font-bold text-[#0f2942] text-sm">
+                                      <span>{edu.institution}</span>
+                                      <span className="text-slate-500 font-normal">{edu.dates}</span>
+                                    </div>
+                                    <div className="italic text-slate-600 mb-1">{edu.degree}</div>
+                                    {edu.description && (
+                                      <div className="mt-2 w-full">
+                                        {renderEducationDescription(edu.description)}
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Experience / Internship Objective / Strengths */}
+                          {formData.experience.some(e => e.title || e.company) && (
+                            <div className="space-y-5">
+                              {formData.experience.map((exp, i) => (exp.title || exp.company) && (
+                                <div key={i}>
+                                  <h2 className="text-xs font-bold uppercase tracking-wider text-[#0f2942] flex items-center gap-2 mb-1.5">
+                                    <span className="w-2.5 h-2.5 rounded-full bg-[#0f2942] inline-flex shrink-0 align-middle"></span>
+                                    <span>{exp.title}</span>
+                                  </h2>
+                                  <div className="w-full h-[1px] bg-slate-300 mb-2"></div>
+                                  
+                                  <div className="text-xs pl-1">
+                                    {/* Handle Signature block specially for Declaration section */}
+                                    {exp.title.toLowerCase().includes('declaration') ? (
+                                      <div className="space-y-6">
+                                        <p className="text-slate-700 leading-relaxed italic">{exp.description}</p>
+                                        <div className="flex flex-col items-end pr-4">
+                                          <span className="font-serif italic text-base text-[#0f2942] tracking-wider pr-2 select-none">
+                                            {formData.contact.name}
+                                          </span>
+                                          <div className="w-36 h-[1px] bg-slate-400 mt-1"></div>
+                                          <span className="text-[10px] text-slate-500 font-semibold mt-1 uppercase">Signature</span>
+                                          <span className="text-xs text-slate-700 font-bold mt-1">({formData.contact.name})</span>
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <div className="space-y-1">
+                                        {exp.company && (
+                                          <div className="font-semibold text-slate-700">{exp.company} <span className="font-normal text-slate-500 text-[10px]">({exp.dates})</span></div>
+                                        )}
+                                        {exp.description && (
+                                          <ul className="list-disc list-inside space-y-1 text-slate-700 mt-1">
+                                            {exp.description.split('\n').map((line, j) => line && (
+                                              <li key={j} className="leading-relaxed">{line.replace(/^[•\-\*]\s*/, '')}</li>
+                                            ))}
+                                          </ul>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Certifications */}
+                          {formData.certifications.some(c => c.name) && (
+                            <div>
+                              <h2 className="text-xs font-bold uppercase tracking-wider text-[#0f2942] flex items-center gap-2 mb-1.5">
+                                <span className="w-2.5 h-2.5 rounded-full bg-[#0f2942] inline-flex shrink-0 align-middle"></span>
+                                <span>Certifications & Activities</span>
+                              </h2>
+                              <div className="w-full h-[1px] bg-slate-300 mb-2"></div>
+                              <ul className="list-disc list-inside text-xs text-slate-700 pl-1 space-y-1">
+                                {formData.certifications.map((cert, i) => cert.name && (
+                                  <li key={i} className="leading-relaxed">
+                                    <span className="font-bold">{cert.name}</span>
+                                    {cert.source && <span className="italic"> — {cert.source}</span>}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
 
                     {/* ── Default Preview (all other templates) ── */}
-                    {template.id !== 'harvard-ats' && template.id !== 'creative-sidebar' && (
+                    {template.id !== 'harvard-ats' && template.id !== 'creative-sidebar' && template.id !== 'law-scholar' && (
                       <div ref={resumePreviewRef} className="bg-white text-black p-4 md:p-8 rounded-md shadow-lg aspect-[8.5/11] min-w-[700px] overflow-y-auto font-sans mx-auto">
                           <div className="text-center mb-6">
                               <h1 className="text-4xl font-extrabold tracking-tight">{formData.contact.name || 'Your Name'}</h1>

@@ -66,4 +66,10 @@ export const templates: Template[] = [
     price: 49,
     sections: ['contact', 'summary', 'skills', 'experience', 'education', 'projects', 'achievements'],
   },
+  {
+    id: 'law-scholar',
+    name: 'Law Scholar',
+    type: 'free',
+    sections: ['contact', 'summary', 'skills', 'experience', 'education', 'achievements', 'certifications'],
+  },
 ];
